@@ -1,0 +1,16 @@
+name: MetaB
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - python=3.9
+  - fastqc
+  - vsearch
+  - cutadapt
+  - wget
+  - git
+  - gzip
+  - nano
+  - conda-forge::csvkit
+  - conda-forge::perl
