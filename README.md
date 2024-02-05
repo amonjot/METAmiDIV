@@ -15,7 +15,7 @@
 
 `git clone https://github.com/amonjot/MeTaB.git`
 
-`cd MeTaBls`
+`cd MeTaB`
 
 ### **Dependencies: (installed during installation script)**
 
