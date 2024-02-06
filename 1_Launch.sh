@@ -98,8 +98,8 @@ do
         echo -e "\t\t2/5 Merging"
         vsearch -fastq_mergepairs rawdata/$PROJET/$forward -reverse rawdata/$PROJET/$reverse -fastq_maxmergelen $MAXMERGE -fastq_allowmergestagger -fastq_minmergelen $MINMERGE -fastq_maxdiffs $MAXDIFFS -fastq_maxns $MAXNS -fastqout temp/$label"_assembly.fastq" --log result/$PROJET/log/vsearch_merging_$label.log 2> /dev/null
         echo -e "\t\t\tPairs: "$(cat result/$PROJET/log/vsearch_merging_$label.log | grep " Pairs" | awk -F" Pairs" '{print $1}')
-        echo -e "\t\t\tMerged: "$(cat result/$PROJET/log/vsearch_merging_$label.log | grep " Merged" | awk -F" Merged" '{print $1" "$3}')
-        echo -e "\t\t\tNot merged: "$(cat result/$PROJET/log/vsearch_merging_$label.log | grep " Not merged" | awk -F" Not merged" '{print $1" "$4}')
+        echo -e "\t\t\tMerged: "$(cat result/$PROJET/log/vsearch_merging_$label.log | grep " Merged" | awk -F" Merged" '{print $1" "$2}')
+        echo -e "\t\t\tNot merged: "$(cat result/$PROJET/log/vsearch_merging_$label.log | grep " Not merged" | awk -F" Not merged" '{print $1" "$2}')
         # Quality of assembly
         echo -e "\t\t3/5 Quality checking of assembly"
         fastqc temp/$label"_assembly.fastq" -o result/$PROJET/quality/ -q > /dev/null
@@ -117,12 +117,12 @@ do
         echo -e "\t\t\t"$(cat result/$PROJET/log/cutadapt_$label.log | grep "Quality-trimmed:")
         echo -e "\t\t\t"$(cat result/$PROJET/log/cutadapt_$label.log | grep "Total written (filtered)")
         ## Convertion
-        vsearch -fastq_filter temp/$label"_assembly_trim.fastq" -fastaout temp/$label"_assembly_trim.fasta" -relabel $label":" -fasta_width 0 --log result/$PROJET/log/vsearch_conversion_$label.log 2> /dev/null
+        vsearch -fastq_filter temp/$label"_assembly_trim.fastq" -fastaout temp/$PROJET"_"$label"_assembly_trim.fasta" -relabel $label":" -fasta_width 0 --log result/$PROJET/log/vsearch_conversion_$label.log 2> /dev/null
         ### CHIMERA
         if [ $(echo $CHIMERAYN | grep "Y" | wc -l) -eq 1 ]
         then
         echo -e "\t\t5/5 Detection and removal of chimera: Yes"
-        vsearch -uchime_denovo temp/$label"_assembly_trim.fasta" -nonchimeras "temp/nonchimera_"$PROJET"_"$label"_assembly_clean.fasta" -fasta_width 0 --log result/$PROJET/log/vsearch_chimera_$label.log 2> /dev/null
+        vsearch -uchime_denovo temp/$PROJET"_"$label"_assembly_trim.fasta" -nonchimeras "temp/nonchimera_"$PROJET"_"$label"_assembly_clean.fasta" -fasta_width 0 --log result/$PROJET/log/vsearch_chimera_$label.log 2> /dev/null
         echo -e "\t\t\tChimeras: "$(cat result/$PROJET/log/vsearch_chimera_$label.log | grep "temp/"$label"_assembly_trim.fasta: " | cut -d" " -f2,4)
         fi
         if [ $(echo $CHIMERAYN | grep "N" | wc -l) -eq 1 ]
@@ -133,7 +133,14 @@ do
 done
 
 # Concatenation
+if [ $(echo $CHIMERAYN | grep "Y" | wc -l) -eq 1 ]
+then
 cat temp/nonchimera_$PROJET*.fasta >> result/$PROJET/$PROJET"_all.fasta"
+fi
+if [ $(echo $CHIMERAYN | grep "N" | wc -l) -eq 1 ]
+then
+cat temp/$PROJET*_assembly_trim.fasta >> result/$PROJET/$PROJET"_all.fasta"
+fi
 # Dereplication
 vsearch -derep_fulllength result/$PROJET/$PROJET"_all.fasta" -output result/$PROJET/unique.fasta -relabel uniq_ --log result/$PROJET/log/vsearch_dereplication_$PROJET.log 2> /dev/null
 # Clusterisation
