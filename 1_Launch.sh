@@ -29,6 +29,12 @@ fi
 ## Parse initialzation file
 PROJET=$(cat $INI | grep "PROJET" | awk -F' : ' '{print $2}')
 echo "Projet : $PROJET"
+### detect sample.gz and unzip if present
+if [ $(ls rawdata/$PROJET | grep ".gz$" | wc -l) -gt 0 ]
+then
+gunzip rawdata/$PROJET/*
+fi
+###
 SAMPLE=$(cat $INI | grep "SAMPLE" | awk -F' : ' '{print $2}')
 if [ $(echo $SAMPLE | grep "ALL" | wc -l) -eq 1 ]
 then
@@ -50,12 +56,14 @@ MAXNS=$(cat $INI | grep "MAXNS" | awk -F' : ' '{print $2}')
 echo -e "\tMaximum ambiguous nucleotide in the overlap : $MAXNS"
 PRIMERF=$(cat $INI | grep "PRIMERF" | awk -F' : ' '{print $2}')
 echo -e "\tPrimer forward : $PRIMERF"
-PRIMERR=$(cat $INI | grep "PRIMERR" | awk -F' : ' '{print $2}')
+PRIMERR=$(cat $INI | grep "PRIMERR" | awk -F' : ' '{print $2}' | tr 'ATCGRYKMBDHVNatcgrykmbdhvn' 'TAGCYRMKVHDBNtagcyrmkvhdbn' | rev )
 echo -e "\tPrimer reverse : $PRIMERR"
 DATABASE=$(cat $INI | grep "DATABASE" | awk -F' : ' '{print $2}')
 echo -e "\tDatabase : $DATABASE"
 IDENTITY=$(cat $INI | grep "IDENTITY" | awk -F' : ' '{print $2}')
 echo -e "\tClustering treshold : $IDENTITY"
+CHIMERAYN=$(cat $INI | grep "CHIMERAYN" | awk -F' : ' '{print $2}')
+echo -e "\tChimera removal : $CHIMERAYN"
 #
 # Create result folder
 if [ $(ls result/ | grep ^$PROJET$ | wc -l) -eq 0 ]
@@ -111,9 +119,16 @@ do
         ## Convertion
         vsearch -fastq_filter temp/$label"_assembly_trim.fastq" -fastaout temp/$label"_assembly_trim.fasta" -relabel $label":" -fasta_width 0 --log result/$PROJET/log/vsearch_conversion_$label.log 2> /dev/null
         ### CHIMERA
-        echo -e "\t\t5/5 Detection and removal of chimera"
+        if [ $(echo $CHIMERAYN | grep "Y" | wc -l) -eq 1 ]
+        then
+        echo -e "\t\t5/5 Detection and removal of chimera: Yes"
         vsearch -uchime_denovo temp/$label"_assembly_trim.fasta" -nonchimeras "temp/nonchimera_"$PROJET"_"$label"_assembly_clean.fasta" -fasta_width 0 --log result/$PROJET/log/vsearch_chimera_$label.log 2> /dev/null
         echo -e "\t\t\tChimeras: "$(cat result/$PROJET/log/vsearch_chimera_$label.log | grep "temp/"$label"_assembly_trim.fasta: " | cut -d" " -f2,4)
+        fi
+        if [ $(echo $CHIMERAYN | grep "N" | wc -l) -eq 1 ]
+        then
+        echo -e "\t\t5/5 Detection and removal of chimera: No"
+        fi
     done
 done
 

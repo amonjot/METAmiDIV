@@ -9,7 +9,7 @@
                                 |__/
 19/01/2024
 
-**This is a workflow to carried out a metabarcoding sequencing data analysis with vsearch on unix personnal computer.**
+**This is a workflow to carried out a metabarcoding sequencing data analysis with vsearch on unix-64 personnal computer.**
 
 ### **Clone repository**
 
@@ -44,9 +44,13 @@ You also can use an home made database using *mothur* database format:
 
 To launch metabarcoding analysis, use Launch script with an initialization file *.ini* in argument.
 
-We provide a test dataset. To launch the analysis use the following command:
+We provide a *test* dataset. To launch the analysis use the following command:
 
 `bash 1_Launch.sh test.ini`
 
-Results will be placed in the result directory 
+For your dataset, prepare a directory containing reads (compressed or not) and a *metadata.txt* file in the *rawdata/* directory.
+
+Prepare an initialiation file using the *test.ini* as model.
+
+Results will be placed in the result directory.
 
