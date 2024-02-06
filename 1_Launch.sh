@@ -156,14 +156,14 @@ vsearch -usearch_global result/$PROJET/$PROJET"_all.fasta" -db result/$PROJET/ce
 Fasta_Database=$(ls database/$DATABASE | grep ".*.fasta$")
 Tax_Database=$(ls database/$DATABASE | grep ".*.tax$")
 ## centroids annotation
-vsearch -usearch_global result/$PROJET/centroids.fasta -db database/$DATABASE/$Fasta_Database -id 0.8 -blast6out result/$PROJET/centroids.blast --log result/$PROJET/log/vsearch_centroids-annotation_$PROJET.log 2> /dev/null
+vsearch -usearch_global result/$PROJET/centroids.fasta -db database/$DATABASE/$Fasta_Database -id 0.4 -blast6out result/$PROJET/centroids.blast --log result/$PROJET/log/vsearch_centroids-annotation_$PROJET.log 2> /dev/null
 cut -f1,2 result/$PROJET/centroids.blast | sort -k 2,2 > temp/centroids-simple.blast
 ## Sort tax database file
 Sort_Database=$(echo $Tax_Database | sed 's/.tax/.sort/g')
 cat database/$DATABASE/$Tax_Database | sort -k 1,1 > database/$DATABASE/$Sort_Database
 ## Join
 join -t $'\t' -12 -21 -o 1.1,2.2 temp/centroids-simple.blast database/$DATABASE/$Sort_Database | sort -k 1 > result/$PROJET/centroids.taxo
-echo -e "\t"$(cat result/$PROJET/log/vsearch_OTU-association_$PROJET.log  | grep "Matching unique query sequences:")
+echo -e "\t"$(cat result/$PROJET/log/vsearch_centroids-annotation_$PROJET.log | grep "Matching unique query sequences:")
 ## Prepare result table
 echo -e "4/5 OTU table generation"
 HEADER=$(echo -e $(head -n1 result/$PROJET/OTU-table-$PROJET.tab | sed 's/ /_/g' | sed 's/\t/;/g')";Taxonomy;ID%")
