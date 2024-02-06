@@ -240,7 +240,7 @@ perl bin/KronaTools-2.8/scripts/ImportText.pl result/$PROJET/Krona/Krona_Abundan
 done
 
 ## clean temp/ cache
-#rm temp/*
+rm temp/*
 ## END
 ELAPSED=$((($SECONDS-$BEFORE)/60))
 echo "Metabarcoding analysis stage is completed and takes $ELAPSED minutes"
