@@ -64,6 +64,8 @@ IDENTITY=$(cat $INI | grep "IDENTITY" | awk -F' : ' '{print $2}')
 echo -e "\tClustering treshold : $IDENTITY"
 CHIMERAYN=$(cat $INI | grep "CHIMERAYN" | awk -F' : ' '{print $2}')
 echo -e "\tChimera removal : $CHIMERAYN"
+THREADS=$(cat $INI | grep "THREADS" | awk -F' : ' '{print $2}')
+echo -e "\tNumber of threads : $THREADS"
 #
 # Create result folder
 if [ $(ls result/ | grep ^$PROJET$ | wc -l) -eq 0 ]
@@ -145,24 +147,25 @@ fi
 vsearch -derep_fulllength result/$PROJET/$PROJET"_all.fasta" -output result/$PROJET/unique.fasta -relabel uniq_ --log result/$PROJET/log/vsearch_dereplication_$PROJET.log 2> /dev/null
 # Clusterisation
 echo -e "2/5 OTU clusterisation"
-vsearch -cluster_fast result/$PROJET/unique.fasta -id $IDENTITY -centroids result/$PROJET/centroids.fasta -relabel OTU_ --log result/$PROJET/log/vsearch_clusterisation_$PROJET.log 2> /dev/null
+vsearch -cluster_fast result/$PROJET/unique.fasta -id $IDENTITY --threads $THREADS -centroids result/$PROJET/centroids.fasta -relabel OTU_ --log result/$PROJET/log/vsearch_clusterisation_$PROJET.log 2> /dev/null
 echo -e "\t"$(cat result/$PROJET/log/vsearch_clusterisation_$PROJET.log | grep "Clusters")
 echo -e "\t"$(cat result/$PROJET/log/vsearch_clusterisation_$PROJET.log | grep "Singletons:")
 # OTU association
-echo -e "3/5 Taxonomic affiliation"
-vsearch -usearch_global result/$PROJET/$PROJET"_all.fasta" -db result/$PROJET/centroids.fasta -id $IDENTITY -otutabout result/$PROJET/OTU-table-$PROJET.tab --log result/$PROJET/log/vsearch_OTU-association_$PROJET.log 2> /dev/null
+vsearch -usearch_global result/$PROJET/$PROJET"_all.fasta" -db result/$PROJET/centroids.fasta -id $IDENTITY --threads $THREADS -otutabout result/$PROJET/OTU-table-$PROJET.tab --log result/$PROJET/log/vsearch_OTU-association_$PROJET.log 2> /dev/null
 # Taxonomic annotation
+echo -e "3/5 Taxonomic affiliation"
 ## Set database files
 Fasta_Database=$(ls database/$DATABASE | grep ".*.fasta$")
 Tax_Database=$(ls database/$DATABASE | grep ".*.tax$")
 ## centroids annotation
-vsearch -usearch_global result/$PROJET/centroids.fasta -db database/$DATABASE/$Fasta_Database -id 0.4 -blast6out result/$PROJET/centroids.blast --log result/$PROJET/log/vsearch_centroids-annotation_$PROJET.log 2> /dev/null
+vsearch -usearch_global result/$PROJET/centroids.fasta -db database/$DATABASE/$Fasta_Database -id 0.4 --threads $THREADS -blast6out result/$PROJET/centroids.blast --log result/$PROJET/log/vsearch_centroids-annotation_$PROJET.log 2> /dev/null
 cut -f1,2 result/$PROJET/centroids.blast | sort -k 2,2 > temp/centroids-simple.blast
 ## Sort tax database file
 Sort_Database=$(echo $Tax_Database | sed 's/.tax/.sort/g')
 cat database/$DATABASE/$Tax_Database | sort -k 1,1 > database/$DATABASE/$Sort_Database
 ## Join
-join -t $'\t' -12 -21 -o 1.1,2.2 temp/centroids-simple.blast database/$DATABASE/$Sort_Database | sort -k 1 > result/$PROJET/centroids.taxo
+awk 'NR==FNR {h[$1]=$2; next} {print $1,h[$2]}' database/$DATABASE/$Sort_Database temp/centroids-simple.blast | sort -k 1 > result/$PROJET/centroids.taxo
+#join -t $'\t' -12 -21 -o 1.1,2.2 temp/centroids-simple.blast database/$DATABASE/$Sort_Database | sort -k 1 > result/$PROJET/centroids.taxo
 echo -e "\t"$(cat result/$PROJET/log/vsearch_centroids-annotation_$PROJET.log | grep "Matching unique query sequences:")
 ## Prepare result table
 echo -e "4/5 OTU table generation"
