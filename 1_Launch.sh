@@ -125,7 +125,7 @@ do
         then
         echo -e "\t\t5/5 Detection and removal of chimera: Yes"
         vsearch -uchime_denovo temp/$PROJET"_"$label"_assembly_trim.fasta" -nonchimeras "temp/nonchimera_"$PROJET"_"$label"_assembly_clean.fasta" -fasta_width 0 --log result/$PROJET/log/vsearch_chimera_$label.log 2> /dev/null
-        echo -e "\t\t\tChimeras: "$(cat result/$PROJET/log/vsearch_chimera_$label.log | grep "temp/"$label"_assembly_trim.fasta: " | cut -d" " -f2,4)
+        echo -e "\t\t\tChimeras: "$(cat result/$PROJET/log/vsearch_chimera_$label.log | grep "temp/"$PROJET"_"$label"_assembly_trim.fasta: " | cut -d" " -f2,4)
         fi
         if [ $(echo $CHIMERAYN | grep "N" | wc -l) -eq 1 ]
         then
