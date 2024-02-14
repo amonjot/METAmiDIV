@@ -56,21 +56,21 @@ We provide a *test* data set. To launch the analysis use the following command:
 
 For your own data set, prepare a directory containing reads (compressed or not) and a *metadata.txt* file. Place it in the *rawdata/* directory.
 
-Reads must be identified as following : *Sample1_XYZ_R1_XYZ.fastq(.gz)* & *Sample1_XYZ_R2_XYZ.fastq(.gz)*.
+Reads must be identified as following: *Sample1_XYZ_R1_XYZ.fastq(.gz)* & *Sample1_XYZ_R2_XYZ.fastq(.gz)*.
 
 Prepare an initialization file using the *test.ini* as model:
 
     PROJET : The name of your project and the name of the directory containing raw paired-end reads.
-    SAMPLE : Names of samples to analyze (space is delimiter). Specified *ALL* if you want to analyze all samples.
+    SAMPLE : Names of samples to analyze (space is delimiter). Specify *ALL* if you want to analyze all samples.
     MAXMERGE : The maximum length of the reads assembly.
     MINMERGE : The minimum length of the reads assembly.
     MAXDIFFS : The maximum number of differences between the paired-end reads.
     MAXNS : The maximum number of ambiguous nucleotide differences in the assembly.
-    PRIMERF : Forward primer sequence in 5"-3".
-    PRIMERR : Reverse primer sequence in 5"-3".
+    PRIMERF : Forward primer sequence in 5'-3'.
+    PRIMERR : Reverse primer sequence in 5'-3'.
     DATABASE : Database (specified the name of the database directory: *PR2*, *SILVA* or your own database).
     IDENTITY : Clustering treshold (e.g. *0.97*).
-    CHIMERAYN : Specified if you want detect and remove chimeras or not (*Y* or *N*). This step take a while.
+    CHIMERAYN : Specify if you want to detect and remove chimeras or not (*Y* or *N*). This step take a while.
     THREADS : The maximum number of threads to launch the process.
 
 Results will be placed in the result directory.

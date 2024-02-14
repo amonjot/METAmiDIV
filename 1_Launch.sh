@@ -32,6 +32,7 @@ echo "Projet : $PROJET"
 ### detect sample.gz and unzip if present
 if [ $(ls rawdata/$PROJET | grep ".gz$" | wc -l) -gt 0 ]
 then
+echo -e "\tDecompressing reads in progress..."
 gunzip rawdata/$PROJET/*
 fi
 ###
