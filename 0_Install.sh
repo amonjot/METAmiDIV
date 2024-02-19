@@ -13,7 +13,7 @@
 BEFORE=$SECONDS
 # Install dependencies
 ## test conda installation and install it if necessary
-if [ $(which conda | grep "/conda" | wc -l) -eq 0 ]
+if [ $(which conda activate | grep "/activate" | wc -l) -eq 0 ]
 then
     mkdir -p ~/miniconda3
     if [ $(uname -a | grep "Darwin" | grep "x86_64" | wc -l) -gt 0 ]
