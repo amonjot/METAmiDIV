@@ -29,7 +29,7 @@ mkdir rawdata
 mkdir result/
 mkdir temp/
 wget https://mothur.s3.us-east-2.amazonaws.com/wiki/miseqsopdata.zip -O rawdata/test.zip
-gunzip rawdata/test.zip -d rawdata/
+gunzip rawdata/test.zip
 rm rawdata/test.zip
 mv rawdata/MiSeq_SOP rawdata/test
 rm rawdata/test/HMP_MOCK.v35.fasta rawdata/test/Mock_S280_L001_R1_001.fastq rawdata/test/Mock_S280_L001_R2_001.fastq rawdata/test/mouse.dpw.metadata rawdata/test/stability.batch rawdata/test/stability.files
