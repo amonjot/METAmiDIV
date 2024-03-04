@@ -27,6 +27,8 @@ then
     fi
 bash ~/miniconda.sh -b -p ~/miniconda3
 rm -rf ~/miniconda.sh
+cd ~/miniconda3/bin
+./conda init bash
 fi
 #
 ## Initialization file 
