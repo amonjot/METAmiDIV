@@ -15,19 +15,18 @@ BEFORE=$SECONDS
 ## test conda installation and install it if necessary
 if [ $(which conda activate | grep "/activate" | wc -l) -eq 0 ]
 then
-    mkdir -p ~/miniconda3
     if [ $(uname -a | grep "Darwin" | grep "x86_64" | wc -l) -gt 0 ]
     then
-    wget https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -O ~/miniconda3/miniconda.sh
+    wget https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -O ~/miniconda.sh
     elif [ $(uname -a | grep "Darwin" | grep "ARM64" | wc -l) -gt 0 ]
     then
-    wget https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-arm64.sh -O ~/miniconda3/miniconda.sh
+    wget https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-arm64.sh -O ~/miniconda.sh
     elif [ $(uname -a | grep "Linux" | grep "x86_64" | wc -l) -gt 0 ]
     then
-    wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda3/miniconda.sh
+    wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh
     fi
-bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3
-rm -rf ~/miniconda3/miniconda.sh
+bash ~/miniconda.sh -b -p ~/miniconda3
+rm -rf ~/miniconda.sh
 fi
 #
 ## Initialization file 
