@@ -25,7 +25,7 @@ then
     then
     wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh
     fi
-bash ~/miniconda.sh -b -p ~/miniconda3
+bash ~/miniconda.sh -b -u -p ~/miniconda3
 rm -rf ~/miniconda.sh
 cd ~/miniconda3/bin
 ./conda init bash
