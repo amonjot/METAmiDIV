@@ -240,7 +240,9 @@ done
 SAMPLEL=$(echo -e $(cat temp/$CDT | tr '\n' ',' | sed 's/,$//g'))
 cat result/$PROJET/result-$PROJET.tab | tr '\t' ',' | csvcut -c $(echo $SAMPLEL",Taxonomy") | tr ',' '\t' > temp/Krona_$CDT.csv
 cat temp/Krona_$CDT.csv | tail -n+2 | awk -F"\t" '{print '"$LIST"'"\t"$'"$(($h+1))"'}' | sed 's/;/\t/g' | sort -k $(($h+1)) > result/$PROJET/Krona/Krona_Abundance_$CDT.csv
+cat result/$PROJET/Krona/Krona_Abundance_$CDT.csv | awk  -F"\t" '{ for (C=1; C<=1; C++) { if ($C > 1) {$C=1}} print}' | sed 's/ /\t/g' > result/$PROJET/Krona/Krona_Richness_$CDT.csv
 perl bin/KronaTools-2.8/scripts/ImportText.pl result/$PROJET/Krona/Krona_Abundance_$CDT.csv -o result/$PROJET/Krona/Krona_Abundance_$CDT.html > /dev/null
+perl bin/KronaTools-2.8/scripts/ImportText.pl result/$PROJET/Krona/Krona_Richness_$CDT.csv -o result/$PROJET/Krona/Krona_Richness_$CDT.html > /dev/null
 done
 
 ## clean temp/ cache
