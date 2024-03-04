@@ -32,9 +32,15 @@
 
 ### **1. Setup:**
 
-To format current repository and install dependencies, launch installation script: 
+To format current repository and install dependencies. 
 
-`bash 0_Install.sh`
+First, launch the part A of installation script which install miniconda:
+
+`bash 0A_Miniconda.sh`
+
+You have to close and open a new terminal to initialize miniconda. Then, launch the part B of the installation script: 
+
+`bash 0B_Install.sh`
 
 Specify a database (PR2, SILVA or BOTH).
 
