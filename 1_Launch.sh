@@ -67,8 +67,25 @@ CHIMERAYN=$(cat $INI | grep "CHIMERAYN" | awk -F' : ' '{print $2}')
 echo -e "\tChimera removal : $CHIMERAYN"
 THREADS=$(cat $INI | grep "THREADS" | awk -F' : ' '{print $2}')
 echo -e "\tNumber of threads : $THREADS"
+FILTER=$(cat $INI | grep "FILTER" | awk -F' : ' '{print $2}')
+echo -e "\tSelected filter : $FILTER"
+# Set treshold for filter
+TRESH=0 # set treshold to 0
+if [ $(echo $FILTER | grep "Singleton" | wc -l) -eq 1 ]
+then
+TRESH=1 # set treshold to 1 to remove singleton
+fi
+if [ $(echo $FILTER | grep "Doubleton" | wc -l) -eq 1 ]
+then
+TRESH=2 # set treshold to 2 to remove doubleton
+fi
 #
 # Create result folder
+if [ $(ls result/ | grep ^$PROJET$ | wc -l) -eq 1 ]
+then
+rm -r result/$PROJET
+fi
+#
 if [ $(ls result/ | grep ^$PROJET$ | wc -l) -eq 0 ]
 then
 mkdir result/$PROJET
@@ -147,7 +164,7 @@ fi
 # Dereplication
 vsearch -derep_fulllength result/$PROJET/$PROJET"_all.fasta" -output result/$PROJET/unique.fasta -relabel uniq_ --log result/$PROJET/log/vsearch_dereplication_$PROJET.log 2> /dev/null
 # Clusterisation
-echo -e "2/5 OTU clusterisation"
+echo -e "2/5 OTU clusterisation (Warning: informations about unique sequences!)"
 vsearch -cluster_fast result/$PROJET/unique.fasta -id $IDENTITY --threads $THREADS -centroids result/$PROJET/centroids.fasta -relabel OTU_ --log result/$PROJET/log/vsearch_clusterisation_$PROJET.log 2> /dev/null
 echo -e "\t"$(cat result/$PROJET/log/vsearch_clusterisation_$PROJET.log | grep "Clusters")
 echo -e "\t"$(cat result/$PROJET/log/vsearch_clusterisation_$PROJET.log | grep "Singletons:")
@@ -213,36 +230,62 @@ cat result/$PROJET/result-$PROJET.tab | tail -n+2 | awk -F"\t" '{print '"$LIST"'
 perl bin/KronaTools-2.8/scripts/ImportText.pl result/$PROJET/Krona/Krona_Abundance_sum.csv -o result/$PROJET/Krona/Krona_Abundance_sum.html > /dev/null
 cat result/$PROJET/result-$PROJET.tab | tail -n+2 | awk -F"\t" '{print "1\t"$'"$(($h+1))"'}' | sed 's/;/\t/g' > result/$PROJET/Krona/Krona_Richness_sum.csv
 perl bin/KronaTools-2.8/scripts/ImportText.pl result/$PROJET/Krona/Krona_Richness_sum.csv -o result/$PROJET/Krona/Krona_Richness_sum.html > /dev/null
-
-## Sample
+### Filter
+if [ $(echo $FILTER | grep "Bokulich" | wc -l) -eq 1 ]
+then
+TRESH=$(echo "$(cat result/$PROJET/Krona/Krona_Abundance_sum.csv | awk -F'\t' '{sum+=$1;}END{print sum;}') 0.005 100" | awk '{print $1*$2/$3}') # set treshold to 0.005% of dataset size
+fi
+cat result/$PROJET/Krona/Krona_Abundance_sum.csv | awk -F"\t" '{ for (C=1; C<=1; C++) { if ($C>'"$TRESH"') {print} }}' > result/$PROJET/Krona/Krona_Abundance_$FILTER"_sum.csv"
+perl bin/KronaTools-2.8/scripts/ImportText.pl result/$PROJET/Krona/Krona_Abundance_$FILTER"_sum.csv" -o result/$PROJET/Krona/Krona_Abundance_$FILTER"_sum.html" > /dev/null
+cat result/$PROJET/Krona/Krona_Abundance_$FILTER"_sum.csv" | awk  -F"\t" '{ for (C=1; C<=1; C++) { if ($C>1) {$C=1}} print}' | sed 's/ /\t/g' > result/$PROJET/Krona/Krona_Richness_$FILTER"_sum.csv"
+perl bin/KronaTools-2.8/scripts/ImportText.pl result/$PROJET/Krona/Krona_Richness_$FILTER"_sum.csv" -o result/$PROJET/Krona/Krona_Richness_$FILTER"_sum.html" > /dev/null
+# INF
+echo -e "\tTotal OTUs: "$(cat result/$PROJET/Krona/Krona_Richness_sum.csv | awk -F'\t' '{sum+=$1;}END{print sum;}')
+echo -e "\tTotal OTUs after filters: "$(cat result/$PROJET/Krona/Krona_Richness_$FILTER"_sum.csv" | awk -F'\t' '{sum+=$1;}END{print sum;}')
+echo -e "\tTotal sequences: "$(cat result/$PROJET/Krona/Krona_Abundance_sum.csv | awk -F'\t' '{sum+=$1;}END{print sum;}')
+echo -e "\tTotal sequences after filters: "$(cat result/$PROJET/Krona/Krona_Abundance_$FILTER"_sum.csv" | awk -F'\t' '{sum+=$1;}END{print sum;}')
+echo -e "\tTreshold filter is set to: "$TRESH
+#
+### Sample
 for sampleI in $SAMPLE
 do
-ETAT=$(cat rawdata/$PROJET/metadata.txt | grep '^'$sampleI$'\t' | cut -f2)
-touch temp/$ETAT
-echo $sampleI >> temp/$ETAT
+    ETAT=$(cat rawdata/$PROJET/metadata.txt | grep '^'$sampleI$'\t' | cut -f2)
+    touch temp/$ETAT
+    echo $sampleI >> temp/$ETAT
 done
 
+### CDT
 for CDT in $(ls temp/)
 do
-
-h=0
-LIST=''
-for i in $(cat temp/$CDT)
-do
-h=$(($h+1))
-LIST=$(echo $LIST"+\$"$h)
-if [ $(echo $LIST | grep "^+\$1" | wc -l) -eq 1 ]
-then
-LIST="\$1"
-fi
-done
-
-SAMPLEL=$(echo -e $(cat temp/$CDT | tr '\n' ',' | sed 's/,$//g'))
-cat result/$PROJET/result-$PROJET.tab | tr '\t' ',' | csvcut -c $(echo $SAMPLEL",Taxonomy") | tr ',' '\t' > temp/Krona_$CDT.csv
-cat temp/Krona_$CDT.csv | tail -n+2 | awk -F"\t" '{print '"$LIST"'"\t"$'"$(($h+1))"'}' | sed 's/;/\t/g' | sort -k $(($h+1)) > result/$PROJET/Krona/Krona_Abundance_$CDT.csv
-cat result/$PROJET/Krona/Krona_Abundance_$CDT.csv | awk  -F"\t" '{ for (C=1; C<=1; C++) { if ($C > 1) {$C=1}} print}' | sed 's/ /\t/g' > result/$PROJET/Krona/Krona_Richness_$CDT.csv
-perl bin/KronaTools-2.8/scripts/ImportText.pl result/$PROJET/Krona/Krona_Abundance_$CDT.csv -o result/$PROJET/Krona/Krona_Abundance_$CDT.html > /dev/null
-perl bin/KronaTools-2.8/scripts/ImportText.pl result/$PROJET/Krona/Krona_Richness_$CDT.csv -o result/$PROJET/Krona/Krona_Richness_$CDT.html > /dev/null
+    h=0
+    LIST=''
+    for i in $(cat temp/$CDT)
+    do
+        h=$(($h+1))
+        LIST=$(echo $LIST"+\$"$h)
+        if [ $(echo $LIST | grep "^+\$1" | wc -l) -eq 1 ]
+        then
+        LIST="\$1"
+        fi
+    done
+    SAMPLEL=$(echo -e $(cat temp/$CDT | tr '\n' ',' | sed 's/,$//g'))
+    cat result/$PROJET/result-$PROJET.tab | tr '\t' ',' | csvcut -c $(echo $SAMPLEL",Taxonomy") | tr ',' '\t' > temp/Krona_$CDT.csv
+    cat temp/Krona_$CDT.csv | tail -n+2 | awk -F"\t" '{print '"$LIST"'"\t"$'"$(($h+1))"'}' | sed 's/;/\t/g' | sort -k $(($h+1)) > result/$PROJET/Krona/Krona_Abundance_$CDT".csv"
+    cat result/$PROJET/Krona/Krona_Abundance_$CDT".csv" | awk  -F"\t" '{ for (C=1; C<=1; C++) { if ($C>1) {$C=1}} print}' | sed 's/ /\t/g' > result/$PROJET/Krona/Krona_Richness_$CDT".csv"
+    perl bin/KronaTools-2.8/scripts/ImportText.pl result/$PROJET/Krona/Krona_Abundance_$CDT".csv" -o result/$PROJET/Krona/Krona_Abundance_$CDT".html" > /dev/null
+    perl bin/KronaTools-2.8/scripts/ImportText.pl result/$PROJET/Krona/Krona_Richness_$CDT".csv" -o result/$PROJET/Krona/Krona_Richness_$CDT".html" > /dev/null
+    ### Filter
+    cat result/$PROJET/Krona/Krona_Abundance_$CDT.csv | awk -F"\t" '{ for (C=1; C<=1; C++) { if ($C>'"$TRESH"') {print} }}' > result/$PROJET/Krona/Krona_Abundance_$FILTER"_"$CDT".csv"
+    perl bin/KronaTools-2.8/scripts/ImportText.pl result/$PROJET/Krona/Krona_Abundance_$FILTER"_"$CDT".csv" -o result/$PROJET/Krona/Krona_Abundance_$FILTER"_"$CDT".html" > /dev/null
+    cat result/$PROJET/Krona/Krona_Abundance_$FILTER"_"$CDT".csv" | awk  -F"\t" '{ for (C=1; C<=1; C++) { if ($C>1) {$C=1}} print}' | sed 's/ /\t/g' > result/$PROJET/Krona/Krona_Richness_$FILTER"_"$CDT".csv"
+    perl bin/KronaTools-2.8/scripts/ImportText.pl result/$PROJET/Krona/Krona_Richness_$FILTER"_"$CDT".csv" -o result/$PROJET/Krona/Krona_Richness_$FILTER"_"$CDT".html" > /dev/null
+    ### INF
+    echo -e "\t$CDT"
+    echo -e "\t\tTotal OTUs: "$(cat result/$PROJET/Krona/Krona_Richness_$CDT".csv" | awk -F'\t' '{sum+=$1;}END{print sum;}')
+    echo -e "\t\tTotal OTUs after filters: "$(cat result/$PROJET/Krona/Krona_Richness_$FILTER"_"$CDT".csv" | awk -F'\t' '{sum+=$1;}END{print sum;}')
+    echo -e "\t\tTotal sequences: "$(cat result/$PROJET/Krona/Krona_Abundance_$CDT".csv" | awk -F'\t' '{sum+=$1;}END{print sum;}')
+    echo -e "\t\tTotal sequences after filters: "$(cat result/$PROJET/Krona/Krona_Abundance_$FILTER"_"$CDT".csv" | awk -F'\t' '{sum+=$1;}END{print sum;}')
+    #
 done
 
 ## clean temp/ cache
