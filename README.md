@@ -78,6 +78,7 @@ Prepare an initialization file using the *test.ini* as model:
     IDENTITY : Clustering treshold (e.g. *0.97*).
     CHIMERAYN : Specify if you want to detect and remove chimeras or not (*Y* or *N*). This step take a while.
     THREADS : The maximum number of threads to launch the process.
+    FILTER : The type of filters used to analyse OTU table (*Singleton* or *Doubleton* or *Bokulich*)
 
 Results will be placed in the result directory.
 
