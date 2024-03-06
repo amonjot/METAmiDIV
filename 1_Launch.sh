@@ -288,6 +288,17 @@ do
     #
 done
 
+# Change parameters of krona files
+for krona in $(ls result/$PROJET/Krona/ | grep ".html$")
+do
+    newkrona=$(echo $krona | sed 's/.html/_result.html/g')
+    # parameter collapse krona
+    sed 's/<krona collapse="true" key="true">/<krona collapse="false" key="true">/g' result/$PROJET/Krona/$krona > result/$PROJET/Krona/$newkrona
+    #
+    rm result/$PROJET/Krona/$krona
+    mv result/$PROJET/Krona/$newkrona result/$PROJET/Krona/$krona
+done
+
 ## clean temp/ cache
 rm temp/*
 ## END
