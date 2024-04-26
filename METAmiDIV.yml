@@ -1,4 +1,4 @@
-name: MetaB
+name: METAmiDIV
 channels:
   - conda-forge
   - bioconda
@@ -15,3 +15,4 @@ dependencies:
   - conda-forge::csvkit
   - conda-forge::perl
   - conda-forge::unzip
+  - bioconda::sina

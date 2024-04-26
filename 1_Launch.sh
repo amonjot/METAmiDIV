@@ -14,7 +14,7 @@ BEFORE=$SECONDS
 # Activate conda environment
 PATHCONDA=$(conda info | grep -i 'base environment' | awk -F" " '{print $4}')
 source $PATHCONDA'/etc/profile.d/conda.sh'
-conda activate MetaB
+conda activate METAmiDIV
 #
 # Arguments
 ## enter initialization file
@@ -92,7 +92,7 @@ mkdir result/$PROJET
 mkdir result/$PROJET/quality
 mkdir result/$PROJET/log
 fi
-echo -e "1/5 Preprocessing"
+echo -e "1/6 Preprocessing"
 #
 # Boucle metabarcoding preprocessing
 ## Def forward,reverse and label
@@ -164,14 +164,14 @@ fi
 # Dereplication
 vsearch -derep_fulllength result/$PROJET/$PROJET"_all.fasta" -output result/$PROJET/unique.fasta -relabel uniq_ --log result/$PROJET/log/vsearch_dereplication_$PROJET.log 2> /dev/null
 # Clusterisation
-echo -e "2/5 OTU clusterisation (Warning: informations about unique sequences!)"
-vsearch -cluster_fast result/$PROJET/unique.fasta -id $IDENTITY --threads $THREADS -centroids result/$PROJET/centroids.fasta -relabel OTU_ --log result/$PROJET/log/vsearch_clusterisation_$PROJET.log 2> /dev/null
+echo -e "2/6 OTU clusterisation (Warning: informations about unique sequences!)"
+vsearch -cluster_fast result/$PROJET/unique.fasta -id $IDENTITY --threads $THREADS -centroids result/$PROJET/centroids.fasta -fasta_width 0 -relabel OTU_ --log result/$PROJET/log/vsearch_clusterisation_$PROJET.log 2> /dev/null
 echo -e "\t"$(cat result/$PROJET/log/vsearch_clusterisation_$PROJET.log | grep "Clusters")
 echo -e "\t"$(cat result/$PROJET/log/vsearch_clusterisation_$PROJET.log | grep "Singletons:")
 # OTU association
 vsearch -usearch_global result/$PROJET/$PROJET"_all.fasta" -db result/$PROJET/centroids.fasta -id $IDENTITY --threads $THREADS -otutabout result/$PROJET/OTU-table-$PROJET.tab --log result/$PROJET/log/vsearch_OTU-association_$PROJET.log 2> /dev/null
 # Taxonomic annotation
-echo -e "3/5 Taxonomic affiliation"
+echo -e "3/6 Taxonomic affiliation"
 ## Set database files
 Fasta_Database=$(ls database/$DATABASE | grep ".*.fasta$")
 Tax_Database=$(ls database/$DATABASE | grep ".*.tax$")
@@ -182,12 +182,22 @@ cut -f1,2 result/$PROJET/centroids.blast | sort -k 2,2 > temp/centroids-simple.b
 Sort_Database=$(echo $Tax_Database | sed 's/.tax/.sort/g')
 cat database/$DATABASE/$Tax_Database | sort -k 1,1 > database/$DATABASE/$Sort_Database
 ## Join
-awk 'NR==FNR {h[$1]=$2; next} {print $1,h[$2]}' database/$DATABASE/$Sort_Database temp/centroids-simple.blast | sort -k 1 > result/$PROJET/centroids.taxo
-#join -t $'\t' -12 -21 -o 1.1,2.2 temp/centroids-simple.blast database/$DATABASE/$Sort_Database | sort -k 1 > result/$PROJET/centroids.taxo
+awk 'NR==FNR {h[$1]=$2; next} {print $1,h[$2]}' database/$DATABASE/$Sort_Database temp/centroids-simple.blast | sort -k 1 > result/$PROJET/centroids.BHtaxo
+#join -t $'\t' -12 -21 -o 1.1,2.2 temp/centroids-simple.blast database/$DATABASE/$Sort_Database | sort -k 1 > result/$PROJET/centroids.BHtaxo
 echo -e "\t"$(cat result/$PROJET/log/vsearch_centroids-annotation_$PROJET.log | grep "Matching unique query sequences:")
+
+# LCA Classificiation
+echo -e "4/6 LCA classification"
+## Set database files
+ARB_Database=$(ls database/LCA | grep ".*.arb$")
+## centroids annotation
+sina -i result/$PROJET/centroids.fasta --db database/LCA/$ARB_Database -o result/$PROJET/centroids.csv -S --lca-fields tax_slv
+mv result/$PROJET/centroids.csv result/$PROJET/centroids.LCAtaxo
+tail -n +2 result/$PROJET/centroids.LCAtaxo | tr "," "\t" | tr " " "_" | cut -f1,8,6 | sort -k 3,3 > temp/centroids-simple.csv
+#
 ## Prepare result table
-echo -e "4/5 OTU table generation"
-HEADER=$(echo -e $(head -n1 result/$PROJET/OTU-table-$PROJET.tab | sed 's/ /_/g' | sed 's/\t/;/g')";Taxonomy;ID%")
+echo -e "5/6 OTU table generation"
+HEADER=$(echo -e $(head -n1 result/$PROJET/OTU-table-$PROJET.tab | sed 's/ /_/g' | sed 's/\t/;/g')";BH_tax;ID%;Accesion_number;LCA_tax_slv;Align_quality_slv")
 tail -n +2 result/$PROJET/OTU-table-$PROJET.tab | sort -k 1 > temp/result-$PROJET.temp
 h=0
 LIST=''
@@ -195,6 +205,7 @@ for i in $SAMPLE
 do
 h=$(($h+1))
 LIST=$(echo $LIST","$h)
+
 if [ $(echo $LIST | grep "^,1" | wc -l) -eq 1 ]
 then
 LIST="1"
@@ -203,14 +214,16 @@ done
 echo $HEADER | sed 's/;/\t/g' > result/$PROJET/result-$PROJET.tab
 
 cat result/$PROJET/centroids.blast | sort -k 1 > temp/xcentroids.blast
+cat temp/centroids-simple.csv | sort -k 1 > temp/xcentroids-simple.csv
 
-paste temp/result-$PROJET.temp result/$PROJET/centroids.taxo temp/xcentroids.blast | sed -e 's/\([^\t]\)\t/\1 /g;s/\t/     /g;s/\t/ /g;s/ /\t/g' | cut  -f $LIST,$(($h+1)),$(($h+3)),$(($h+6)) >> result/$PROJET/result-$PROJET.tab
+paste temp/result-$PROJET.temp result/$PROJET/centroids.BHtaxo temp/xcentroids.blast temp/xcentroids-simple.csv | sed -e 's/\([^\t]\)\t/\1 /g;s/\t/     /g;s/\t/ /g;s/ /\t/g' | awk -F"\t" '{print $'"$(($LIST))"'"\t"$'"$(($h+1))"'"\t"$'"$(($h+3))"'"\t"$'"$(($h+6))"'"\t"$'"$(($h+5))"'"\t"$'"$(($h+18))"'"\t"$'"$(($h+17))"' }' >> result/$PROJET/result-$PROJET.tab
+
 
 ## clean temp/ cache
 rm temp/*
 
 ## Make Krona
-echo -e "5/5 Krona generation"
+echo -e "6/6 Krona generation"
 if [ $(ls result/$PROJET/ | grep "Krona" | wc -l) -eq 0 ]
 then
 mkdir result/$PROJET/Krona
@@ -247,6 +260,8 @@ echo -e "\tTotal sequences after filters: "$(cat result/$PROJET/Krona/Krona_Abun
 echo -e "\tTreshold filter is set to: "$TRESH
 #
 ### Sample
+if [ $(ls rawdata/$PROJET/ | grep "metadata.txt" | wc -l) -eq 1 ]
+then
 for sampleI in $SAMPLE
 do
     ETAT=$(cat rawdata/$PROJET/metadata.txt | grep '^'$sampleI$'\t' | cut -f2)
@@ -288,6 +303,12 @@ do
     #
 done
 
+fi
+if [ $(ls rawdata/$PROJET/ | grep "metadata.txt" | wc -l) -eq 0 ]
+then
+echo "No metadata available"
+fi
+
 # Change parameters of krona files
 for krona in $(ls result/$PROJET/Krona/ | grep ".html$")
 do
@@ -300,7 +321,10 @@ do
 done
 
 ## clean temp/ cache
+if [ $(ls rawdata/$PROJET/ | grep "metadata.txt" | wc -l) -eq 1 ]
+then
 rm temp/*
+fi
 ## END
 ELAPSED=$((($SECONDS-$BEFORE)/60))
 echo "Metabarcoding analysis stage is completed and takes $ELAPSED minutes"

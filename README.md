@@ -1,4 +1,4 @@
-# **METABARCODING ANALYSIS**
+# **METAmiDIV : A ready to use METAbarcoding workflow to describe MIcrobial DIVersity**
                                      _       _
          /\                         (_)     | |
         /  \   _ __ ___   ___  _ __  _  ___ | |_
@@ -9,13 +9,13 @@
                                 |__/
 19/01/2024
 
-**This is a workflow to carried out a metabarcoding sequencing data analysis with vsearch on unix-64 bit personal computer.**
+**METAmiDIV allow to carried out a metabarcoding sequencing data analyses using OTU clusterisation on unix-64 bit personal computer.**
 
 ### **Clone repository**
 
-`git clone https://github.com/amonjot/MeTaB.git`
+`git clone https://github.com/amonjot/METAmiDIV.git`
 
-`cd MeTaB`
+`cd METAmiDIV`
 
 ### **Dependencies: (installed during installation script)**
 

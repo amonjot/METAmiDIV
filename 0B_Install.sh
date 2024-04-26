@@ -13,15 +13,15 @@
 BEFORE=$SECONDS
 # Install dependencies
 ## install conda environment
-if [ $(conda env list | grep "^MetaB " | wc -l) -eq 0 ]
+if [ $(conda env list | grep "^METAmiDIV " | wc -l) -eq 0 ]
 then
-conda env create -f MetaB.yml
+conda env create -f METAmiDIV.yml
 fi
 #
 ## activate conda environment
 PATHCONDA=$(conda info | grep -i 'base environment' | awk -F" " '{print $4}')
 source $PATHCONDA'/etc/profile.d/conda.sh'
-conda activate MetaB
+conda activate METAmiDIV
 #
 # Prepare directory and test dataset
 mkdir database/
@@ -50,7 +50,7 @@ then
 mkdir database/SILVA
 wget https://ftp.arb-silva.de/release_138_1/Exports/SILVA_138.1_SSURef_NR99_tax_silva.fasta.gz -O database/SILVA/SILVA_138.1_SSURef_NR99_tax_silva.fasta.gz
 gunzip database/SILVA/SILVA_138.1_SSURef_NR99_tax_silva.fasta.gz
-cat database/SILVA/SILVA_138.1_SSURef_NR99_tax_silva.fasta | awk '{if ($1 ~ ">") print $1"\t"$2}' | sed 's/>//g' > database/SILVA/SILVA_138.1_SSURef_NR99.tax
+cat database/SILVA/SILVA_138.1_SSURef_NR99_tax_silva.fasta | awk -F"\t" '{if ($1 ~ ">") print $1"\t"$2}' | sed 's/>//g' | sed 's/ /\t/' | sed 's/ /_/g' > database/SILVA/SILVA_138.1_SSURef_NR99.tax
 cat database/SILVA/SILVA_138.1_SSURef_NR99_tax_silva.fasta | awk '{if ($1 ~ ">") print "\n"$1 ; else printf $1 }' | sed '/^>/!y/U/T/' | tail -n +2 > database/SILVA/SILVA_138.1_SSURef_NR99.fasta
 rm database/SILVA/SILVA_138.1_SSURef_NR99_tax_silva.fasta
 fi
@@ -61,6 +61,12 @@ wget https://github.com/pr2database/pr2database/releases/download/v5.0.0/pr2_ver
 wget https://github.com/pr2database/pr2database/releases/download/v5.0.0/pr2_version_5.0.0_SSU_mothur.tax.gz -O database/PR2/pr2_version_5.0.0_SSU_mothur.tax.gz
 gunzip database/PR2/*.gz
 fi
+#
+# Prepare database for lca
+## SINA
+mkdir database/LCA
+wget https://www.arb-silva.de/fileadmin/arb_web_db/release_138_1/ARB_files/SILVA_138.1_SSURef_NR99_12_06_20_opt.arb.gz -O database/LCA/SILVA_138.1_SSURef_NR99_12_06_20_opt.arb.gz
+gunzip database/LCA/SILVA_138.1_SSURef_NR99_12_06_20_opt.arb.gz
 #
 ## Krona tool
 mkdir bin/
