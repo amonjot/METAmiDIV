@@ -62,8 +62,7 @@ wget https://github.com/pr2database/pr2database/releases/download/v5.0.0/pr2_ver
 gunzip database/PR2/*.gz
 fi
 #
-# Prepare database for lca
-## SINA
+## Prepare database for lca
 mkdir database/LCA
 wget https://www.arb-silva.de/fileadmin/arb_web_db/release_138_1/ARB_files/SILVA_138.1_SSURef_NR99_12_06_20_opt.arb.gz -O database/LCA/SILVA_138.1_SSURef_NR99_12_06_20_opt.arb.gz
 gunzip database/LCA/SILVA_138.1_SSURef_NR99_12_06_20_opt.arb.gz
