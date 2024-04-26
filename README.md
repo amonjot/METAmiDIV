@@ -29,6 +29,7 @@
     - nano
     - git
     - csvkit
+    - sina
 
 ### **1. Setup:**
 
