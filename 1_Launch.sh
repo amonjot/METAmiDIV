@@ -191,7 +191,7 @@ echo -e "4/6 LCA classification"
 ## Set database files
 ARB_Database=$(ls database/LCA | grep ".*.arb$")
 ## centroids annotation
-sina -i result/$PROJET/centroids.fasta --db database/LCA/$ARB_Database -o result/$PROJET/centroids.csv -S --lca-fields tax_slv
+sina -i result/$PROJET/centroids.fasta --db database/LCA/$ARB_Database -o result/$PROJET/centroids.csv -p $THREADS -S --lca-fields tax_slv
 mv result/$PROJET/centroids.csv result/$PROJET/centroids.LCAtaxo
 tail -n +2 result/$PROJET/centroids.LCAtaxo | tr "," "\t" | tr " " "_" | cut -f1,8,6 | sort -k 3,3 > temp/centroids-simple.csv
 #
