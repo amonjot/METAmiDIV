@@ -35,7 +35,7 @@ echo -e "\tNumber of threads : $THREADS"
 if [ $(ls rawdata/$PROJET | grep ".gz$" | wc -l) -gt 0 ]
 then
 echo -e "\tDecompressing reads in progress..."
-parallel -j $NTHREADS -k 'gunzip {}' ::: rawdata/$PROJET/*.fastq.gz
+parallel -j $THREADS -k 'gunzip {}' ::: rawdata/$PROJET/*.fastq.gz
 fi
 ###
 SAMPLE=$(cat $INI | grep "SAMPLE" | awk -F' : ' '{print $2}')
@@ -329,7 +329,7 @@ then
 rm temp/*
 fi
 ## Compress raw reads
-parallel -j $NTHREADS -k 'gzip {}' ::: rawdata/$PROJET/*.fastq
+parallel -j $THREADS -k 'gzip {}' ::: rawdata/$PROJET/*.fastq
 #
 ## END
 ELAPSED=$((($SECONDS-$BEFORE)/60))
