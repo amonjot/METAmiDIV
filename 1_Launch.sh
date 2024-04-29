@@ -14,7 +14,7 @@ BEFORE=$SECONDS
 # Activate conda environment
 PATHCONDA=$(conda info | grep -i 'base environment' | awk -F" " '{print $4}')
 source $PATHCONDA'/etc/profile.d/conda.sh'
-conda activate METAmiDIV
+conda activate MetaB
 #
 # Arguments
 ## enter initialization file
@@ -183,7 +183,9 @@ Sort_Database=$(echo $Tax_Database | sed 's/.tax/.sort/g')
 cat database/$DATABASE/$Tax_Database | sort -k 1,1 > database/$DATABASE/$Sort_Database
 ## Join
 awk 'NR==FNR {h[$1]=$2; next} {print $1,h[$2]}' database/$DATABASE/$Sort_Database temp/centroids-simple.blast | sort -k 1 > result/$PROJET/centroids.BHtaxo
+#join -t $'\t' -12 -21 -o 1.1,2.2 temp/centroids-simple.blast database/$DATABASE/$Sort_Database | sort -k 1 > result/$PROJET/centroids.BHtaxo
 echo -e "\t"$(cat result/$PROJET/log/vsearch_centroids-annotation_$PROJET.log | grep "Matching unique query sequences:")
+
 # LCA Classificiation
 echo -e "4/6 LCA classification"
 ## Set database files
@@ -192,7 +194,8 @@ ARB_Database=$(ls database/LCA | grep ".*.arb$")
 sina -i result/$PROJET/centroids.fasta --db database/LCA/$ARB_Database -o result/$PROJET/centroids.csv -S --lca-fields tax_slv
 mv result/$PROJET/centroids.csv result/$PROJET/centroids.LCAtaxo
 tail -n +2 result/$PROJET/centroids.LCAtaxo | tr "," "\t" | tr " " "_" | cut -f1,8,6 | sort -k 3,3 > temp/centroids-simple.csv
-# Prepare result table
+#
+## Prepare result table
 echo -e "5/6 OTU table generation"
 HEADER=$(echo -e $(head -n1 result/$PROJET/OTU-table-$PROJET.tab | sed 's/ /_/g' | sed 's/\t/;/g')";BH_tax;ID%;Accesion_number;LCA_tax_slv;Align_quality_slv")
 tail -n +2 result/$PROJET/OTU-table-$PROJET.tab | sort -k 1 > temp/result-$PROJET.temp
@@ -201,19 +204,23 @@ LIST=''
 for i in $SAMPLE
 do
 h=$(($h+1))
-LIST=$(echo $LIST","$h)
-if [ $(echo $LIST | grep "^,1" | wc -l) -eq 1 ]
+LIST=$(echo $LIST"\"\t\"\$"$h)
+if [ $(echo $LIST | grep "^\"\t\"\$1" | wc -l) -eq 1 ]
 then
-LIST="1"
+LIST="\$1"
 fi
 done
 echo $HEADER | sed 's/;/\t/g' > result/$PROJET/result-$PROJET.tab
+
 cat result/$PROJET/centroids.blast | sort -k 1 > temp/xcentroids.blast
 cat temp/centroids-simple.csv | sort -k 1 > temp/xcentroids-simple.csv
-paste temp/result-$PROJET.temp result/$PROJET/centroids.BHtaxo temp/xcentroids.blast temp/xcentroids-simple.csv | sed -e 's/\([^\t]\)\t/\1 /g;s/\t/     /g;s/\t/ /g;s/ /\t/g' | awk -F"\t" '{print $'"$(($LIST))"'"\t"$'"$(($h+1))"'"\t"$'"$(($h+3))"'"\t"$'"$(($h+6))"'"\t"$'"$(($h+5))"'"\t"$'"$(($h+18))"'"\t"$'"$(($h+17))"' }' >> result/$PROJET/result-$PROJET.tab
+
+paste temp/result-$PROJET.temp result/$PROJET/centroids.BHtaxo temp/xcentroids.blast temp/xcentroids-simple.csv | sed -e 's/\([^\t]\)\t/\1 /g;s/\t/     /g;s/\t/ /g;s/ /\t/g' | awk  -F"\t" '{print '"$LIST"'"\t"$'"$(($h+1))"'"\t"$'"$(($h+3))"'"\t"$'"$(($h+6))"'"\t"$'"$(($h+5))"'"\t"$'"$(($h+18))"'"\t"$'"$(($h+17))"' }' | sed 's/^\t//'  >> result/$PROJET/result-$PROJET.tab
+
 ## clean temp/ cache
 rm temp/*
-# Make Krona
+
+## Make Krona
 echo -e "6/6 Krona generation"
 if [ $(ls result/$PROJET/ | grep "Krona" | wc -l) -eq 0 ]
 then
@@ -234,7 +241,7 @@ cat result/$PROJET/result-$PROJET.tab | tail -n+2 | awk -F"\t" '{print '"$LIST"'
 perl bin/KronaTools-2.8/scripts/ImportText.pl result/$PROJET/Krona/Krona_Abundance_sum.csv -o result/$PROJET/Krona/Krona_Abundance_sum.html > /dev/null
 cat result/$PROJET/result-$PROJET.tab | tail -n+2 | awk -F"\t" '{print "1\t"$'"$(($h+1))"'}' | sed 's/;/\t/g' > result/$PROJET/Krona/Krona_Richness_sum.csv
 perl bin/KronaTools-2.8/scripts/ImportText.pl result/$PROJET/Krona/Krona_Richness_sum.csv -o result/$PROJET/Krona/Krona_Richness_sum.html > /dev/null
-## Filter
+### Filter
 if [ $(echo $FILTER | grep "Bokulich" | wc -l) -eq 1 ]
 then
 TRESH=$(echo "$(cat result/$PROJET/Krona/Krona_Abundance_sum.csv | awk -F'\t' '{sum+=$1;}END{print sum;}') 0.005 100" | awk '{print $1*$2/$3}') # set treshold to 0.005% of dataset size
@@ -243,13 +250,14 @@ cat result/$PROJET/Krona/Krona_Abundance_sum.csv | awk -F"\t" '{ for (C=1; C<=1;
 perl bin/KronaTools-2.8/scripts/ImportText.pl result/$PROJET/Krona/Krona_Abundance_$FILTER"_sum.csv" -o result/$PROJET/Krona/Krona_Abundance_$FILTER"_sum.html" > /dev/null
 cat result/$PROJET/Krona/Krona_Abundance_$FILTER"_sum.csv" | awk  -F"\t" '{ for (C=1; C<=1; C++) { if ($C>1) {$C=1}} print}' | sed 's/ /\t/g' > result/$PROJET/Krona/Krona_Richness_$FILTER"_sum.csv"
 perl bin/KronaTools-2.8/scripts/ImportText.pl result/$PROJET/Krona/Krona_Richness_$FILTER"_sum.csv" -o result/$PROJET/Krona/Krona_Richness_$FILTER"_sum.html" > /dev/null
-## INF
+# INF
 echo -e "\tTotal OTUs: "$(cat result/$PROJET/Krona/Krona_Richness_sum.csv | awk -F'\t' '{sum+=$1;}END{print sum;}')
 echo -e "\tTotal OTUs after filters: "$(cat result/$PROJET/Krona/Krona_Richness_$FILTER"_sum.csv" | awk -F'\t' '{sum+=$1;}END{print sum;}')
 echo -e "\tTotal sequences: "$(cat result/$PROJET/Krona/Krona_Abundance_sum.csv | awk -F'\t' '{sum+=$1;}END{print sum;}')
 echo -e "\tTotal sequences after filters: "$(cat result/$PROJET/Krona/Krona_Abundance_$FILTER"_sum.csv" | awk -F'\t' '{sum+=$1;}END{print sum;}')
 echo -e "\tTreshold filter is set to: "$TRESH
-## Sample
+#
+### Sample
 if [ $(ls rawdata/$PROJET/ | grep "metadata.txt" | wc -l) -eq 1 ]
 then
 for sampleI in $SAMPLE
@@ -258,7 +266,8 @@ do
     touch temp/$ETAT
     echo $sampleI >> temp/$ETAT
 done
-## CDT
+
+### CDT
 for CDT in $(ls temp/)
 do
     h=0
@@ -273,7 +282,7 @@ do
         fi
     done
     SAMPLEL=$(echo -e $(cat temp/$CDT | tr '\n' ',' | sed 's/,$//g'))
-    cat result/$PROJET/result-$PROJET.tab | tr '\t' ',' | csvcut -c $(echo $SAMPLEL",Taxonomy") | tr ',' '\t' > temp/Krona_$CDT.csv
+    cat result/$PROJET/result-$PROJET.tab | tr '\t' ',' | csvcut -c $(echo $SAMPLEL",BH_tax") | tr ',' '\t' > temp/Krona_$CDT.csv
     cat temp/Krona_$CDT.csv | tail -n+2 | awk -F"\t" '{print '"$LIST"'"\t"$'"$(($h+1))"'}' | sed 's/;/\t/g' | sort -k $(($h+1)) > result/$PROJET/Krona/Krona_Abundance_$CDT".csv"
     cat result/$PROJET/Krona/Krona_Abundance_$CDT".csv" | awk  -F"\t" '{ for (C=1; C<=1; C++) { if ($C>1) {$C=1}} print}' | sed 's/ /\t/g' > result/$PROJET/Krona/Krona_Richness_$CDT".csv"
     perl bin/KronaTools-2.8/scripts/ImportText.pl result/$PROJET/Krona/Krona_Abundance_$CDT".csv" -o result/$PROJET/Krona/Krona_Abundance_$CDT".html" > /dev/null
@@ -289,12 +298,15 @@ do
     echo -e "\t\tTotal OTUs after filters: "$(cat result/$PROJET/Krona/Krona_Richness_$FILTER"_"$CDT".csv" | awk -F'\t' '{sum+=$1;}END{print sum;}')
     echo -e "\t\tTotal sequences: "$(cat result/$PROJET/Krona/Krona_Abundance_$CDT".csv" | awk -F'\t' '{sum+=$1;}END{print sum;}')
     echo -e "\t\tTotal sequences after filters: "$(cat result/$PROJET/Krona/Krona_Abundance_$FILTER"_"$CDT".csv" | awk -F'\t' '{sum+=$1;}END{print sum;}')
+    #
 done
+
 fi
 if [ $(ls rawdata/$PROJET/ | grep "metadata.txt" | wc -l) -eq 0 ]
 then
 echo "No metadata available"
 fi
+
 # Change parameters of krona files
 for krona in $(ls result/$PROJET/Krona/ | grep ".html$")
 do
@@ -305,11 +317,12 @@ do
     rm result/$PROJET/Krona/$krona
     mv result/$PROJET/Krona/$newkrona result/$PROJET/Krona/$krona
 done
-# clean temp/ cache
+
+## clean temp/ cache
 if [ $(ls rawdata/$PROJET/ | grep "metadata.txt" | wc -l) -eq 1 ]
 then
 rm temp/*
 fi
-# END
+## END
 ELAPSED=$((($SECONDS-$BEFORE)/60))
 echo "Metabarcoding analysis stage is completed and takes $ELAPSED minutes"
