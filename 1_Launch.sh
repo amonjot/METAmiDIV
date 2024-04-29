@@ -29,11 +29,13 @@ fi
 ## Parse initialzation file
 PROJET=$(cat $INI | grep "PROJET" | awk -F' : ' '{print $2}')
 echo "Projet : $PROJET"
+THREADS=$(cat $INI | grep "THREADS" | awk -F' : ' '{print $2}')
+echo -e "\tNumber of threads : $THREADS"
 ### detect sample.gz and unzip if present
 if [ $(ls rawdata/$PROJET | grep ".gz$" | wc -l) -gt 0 ]
 then
 echo -e "\tDecompressing reads in progress..."
-gunzip rawdata/$PROJET/*
+parallel -j $NTHREADS -k 'gunzip {}' ::: rawdata/$PROJET/*.fastq.gz
 fi
 ###
 SAMPLE=$(cat $INI | grep "SAMPLE" | awk -F' : ' '{print $2}')
@@ -323,6 +325,9 @@ if [ $(ls rawdata/$PROJET/ | grep "metadata.txt" | wc -l) -eq 1 ]
 then
 rm temp/*
 fi
+## Compress raw reads
+parallel -j $NTHREADS -k 'gzip {}' ::: rawdata/$PROJET/*.fastq
+#
 ## END
 ELAPSED=$((($SECONDS-$BEFORE)/60))
 echo "Metabarcoding analysis stage is completed and takes $ELAPSED minutes"
