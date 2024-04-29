@@ -16,3 +16,4 @@ dependencies:
   - conda-forge::perl
   - conda-forge::unzip
   - bioconda::sina
+  - conda-forge::parallel

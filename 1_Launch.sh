@@ -133,7 +133,10 @@ do
         nohup cutadapt -a $PATTERN -o temp/$label"_assembly_trim.fastq" -q 30 -e 0 --discard-untrimmed temp/$label"_assembly.fastq" > result/$PROJET/log/cutadapt_$label.log 2>/dev/null
         echo -e "\t\t\t"$(cat result/$PROJET/log/cutadapt_$label.log | grep "Total reads processed:")
         echo -e "\t\t\t"$(cat result/$PROJET/log/cutadapt_$label.log | grep "Reads with adapters:")
+        if [ $(cat result/$PROJET/log/cutadapt_$label.log | grep "Reads discarded as untrimmed:" | wc -l) -eq 1 ]
+        then
         echo -e "\t\t\t"$(cat result/$PROJET/log/cutadapt_$label.log | grep "Reads discarded as untrimmed:")
+        fi
         echo -e "\t\t\t"$(cat result/$PROJET/log/cutadapt_$label.log | grep "Reads written (passing filters):")
         echo -e "\t\t\t"$(cat result/$PROJET/log/cutadapt_$label.log | grep "Total basepairs processed:")
         echo -e "\t\t\t"$(cat result/$PROJET/log/cutadapt_$label.log | grep "Quality-trimmed:")

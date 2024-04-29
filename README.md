@@ -30,6 +30,7 @@
     - git
     - csvkit
     - sina
+    - parallel
 
 ### **1. Setup:**
 
