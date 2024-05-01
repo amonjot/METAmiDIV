@@ -14,7 +14,7 @@ BEFORE=$SECONDS
 # Activate conda environment
 PATHCONDA=$(conda info | grep -i 'base environment' | awk -F" " '{print $4}')
 source $PATHCONDA'/etc/profile.d/conda.sh'
-conda activate MetaB
+conda activate METAmiDIV
 #
 # Arguments
 ## enter initialization file
@@ -181,29 +181,28 @@ echo -e "3/6 Taxonomic affiliation"
 Fasta_Database=$(ls database/$DATABASE | grep ".*.fasta$")
 Tax_Database=$(ls database/$DATABASE | grep ".*.tax$")
 ## centroids annotation
-vsearch -usearch_global result/$PROJET/centroids.fasta -db database/$DATABASE/$Fasta_Database -id 0.4 --threads $THREADS -blast6out result/$PROJET/centroids.blast --log result/$PROJET/log/vsearch_centroids-annotation_$PROJET.log 2> /dev/null
-cut -f1,2 result/$PROJET/centroids.blast | sort -k 2,2 > temp/centroids-simple.blast
-## Sort tax database file
-Sort_Database=$(echo $Tax_Database | sed 's/.tax/.sort/g')
-cat database/$DATABASE/$Tax_Database | sort -k 1,1 > database/$DATABASE/$Sort_Database
+vsearch -usearch_global result/$PROJET/centroids.fasta -db database/$DATABASE/$Fasta_Database -id 0.4 --threads $THREADS -blast6out temp/centroids.blast --log result/$PROJET/log/vsearch_centroids-annotation_$PROJET.log 2> /dev/null
+cat temp/centroids.blast | sort -t'\t' -k 1,1 > result/$PROJET/centroids.blast
+cut -d$'\t' -f1,2 result/$PROJET/centroids.blast | sort -t'\t' -k 1,1 > temp/centroids-simple.blast
 ## Join
-awk 'NR==FNR {h[$1]=$2; next} {print $1,h[$2]}' database/$DATABASE/$Sort_Database temp/centroids-simple.blast | sort -k 1 > result/$PROJET/centroids.BHtaxo
-#join -t $'\t' -12 -21 -o 1.1,2.2 temp/centroids-simple.blast database/$DATABASE/$Sort_Database | sort -k 1 > result/$PROJET/centroids.BHtaxo
+awk 'NR==FNR {h[$1]=$2; next} {print $1"\t"h[$2]}' database/$DATABASE/$Tax_Database temp/centroids-simple.blast | sort -t'\t' -k 1,1 > result/$PROJET/centroids.BHtaxo
 echo -e "\t"$(cat result/$PROJET/log/vsearch_centroids-annotation_$PROJET.log | grep "Matching unique query sequences:")
-
 # LCA Classificiation
 echo -e "4/6 LCA classification"
 ## Set database files
 ARB_Database=$(ls database/LCA | grep ".*.arb$")
 ## centroids annotation
-sina -i result/$PROJET/centroids.fasta --db database/LCA/$ARB_Database -o result/$PROJET/centroids.csv -p $THREADS -S --lca-fields tax_slv
-mv result/$PROJET/centroids.csv result/$PROJET/centroids.LCAtaxo
-tail -n +2 result/$PROJET/centroids.LCAtaxo | tr "," "\t" | tr " " "_" | cut -f1,8,6 | sort -k 3,3 > temp/centroids-simple.csv
+sina -i result/$PROJET/centroids.fasta --db database/LCA/$ARB_Database -o temp/sina_out.csv -p $THREADS -S --lca-fields tax_slv
+tail -n +2 temp/sina_out.csv | tr "," "\t" | tr " " "_" | sort -t'\t' -k 1,1 > result/$PROJET/centroids.alignment
+cat result/$PROJET/centroids.alignment | cut -d$'\t' -f1,6,8 | sort -t'\t' -k 1,1 > result/$PROJET/centroids.LCAtaxo
 #
 ## Prepare result table
 echo -e "5/6 OTU table generation"
 HEADER=$(echo -e $(head -n1 result/$PROJET/OTU-table-$PROJET.tab | sed 's/ /_/g' | sed 's/\t/;/g')";BH_tax;ID%;Accesion_number;LCA_tax_slv;Align_quality_slv")
-tail -n +2 result/$PROJET/OTU-table-$PROJET.tab | sort -k 1 > temp/result-$PROJET.temp
+echo $HEADER | sed 's/;/\t/g' > result/$PROJET/result-$PROJET.tab
+
+tail -n +2 result/$PROJET/OTU-table-$PROJET.tab | sort -t'\t' -k 1,1 > temp/result-$PROJET.temp
+
 h=0
 LIST=''
 for i in $SAMPLE
@@ -215,12 +214,9 @@ then
 LIST="\$1"
 fi
 done
-echo $HEADER | sed 's/;/\t/g' > result/$PROJET/result-$PROJET.tab
+paste temp/result-$PROJET.temp result/$PROJET/centroids.BHtaxo result/$PROJET/centroids.blast result/$PROJET/centroids.LCAtaxo | sed 's/^\t//' >> result/$PROJET/result-$PROJET"_RAW".tab
 
-cat result/$PROJET/centroids.blast | sort -k 1 > temp/xcentroids.blast
-cat temp/centroids-simple.csv | sort -k 1 > temp/xcentroids-simple.csv
-
-paste temp/result-$PROJET.temp result/$PROJET/centroids.BHtaxo temp/xcentroids.blast temp/xcentroids-simple.csv | sed -e 's/\([^\t]\)\t/\1 /g;s/\t/     /g;s/\t/ /g;s/ /\t/g' | awk  -F"\t" '{print '"$LIST"'"\t"$'"$(($h+1))"'"\t"$'"$(($h+3))"'"\t"$'"$(($h+6))"'"\t"$'"$(($h+5))"'"\t"$'"$(($h+18))"'"\t"$'"$(($h+17))"' }' | sed 's/^\t//'  >> result/$PROJET/result-$PROJET.tab
+paste temp/result-$PROJET.temp result/$PROJET/centroids.BHtaxo result/$PROJET/centroids.blast result/$PROJET/centroids.LCAtaxo | awk  -F"\t" '{print '"$LIST"'"\t"$'"$(($h+1))"'"\t"$'"$(($h+3))"'"\t"$'"$(($h+6))"'"\t"$'"$(($h+5))"'"\t"$'"$(($h+18))"'"\t"$'"$(($h+17))"' }' | sed 's/^\t//' >> result/$PROJET/result-$PROJET".tab"
 
 ## clean temp/ cache
 rm temp/*
