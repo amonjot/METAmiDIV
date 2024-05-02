@@ -9,8 +9,7 @@
                                 |__/
 19/01/2024
 
-**METAmiDIV allow to carried out a metabarcoding sequencing data analyses using OTU clusterisation on unix-64 bit personal computer.**
-
+**METAmiDIV allow to carried out metabarcoding sequencing data analyses using OTU clusterisation on unix-64 bit personal computer**
 ### **Clone repository**
 
 `git clone https://github.com/amonjot/METAmiDIV.git`
@@ -26,6 +25,7 @@
     - perl
     - wget
     - gzip
+    - unzip
     - nano
     - git
     - csvkit
@@ -54,7 +54,7 @@ You also can use a home made database using *mothur* database format:
     - 1 text file linking accesion number to taxonomy (tabulation as delimiter)
             AY505519    Bacteria;Firmicutes;Bacilli;Bacillales;Bacillaceae;Halobacillus
 
-### **2. Launch analyses:**
+### **2. Launch analysis:**
 
 To launch metabarcoding analysis, use Launch script with an initialization file *.ini* in argument.
 
@@ -73,7 +73,7 @@ Prepare an initialization file using the *test.ini* as model:
     MAXMERGE : The maximum length of the reads assembly.
     MINMERGE : The minimum length of the reads assembly.
     MAXDIFFS : The maximum number of differences between the paired-end reads.
-    MAXNS : The maximum number of ambiguous nucleotide differences in the assembly.
+    MAXNS : The maximum number of ambiguous nucleotide in the assembly.
     PRIMERF : Forward primer sequence in 5'-3'.
     PRIMERR : Reverse primer sequence in 5'-3'.
     DATABASE : Database (specified the name of the database directory: *PR2*, *SILVA* or your own database).
