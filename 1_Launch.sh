@@ -182,10 +182,10 @@ Fasta_Database=$(ls database/$DATABASE | grep ".*.fasta$")
 Tax_Database=$(ls database/$DATABASE | grep ".*.tax$")
 ## centroids annotation
 vsearch -usearch_global result/$PROJET/centroids.fasta -db database/$DATABASE/$Fasta_Database -id 0.4 --threads $THREADS -blast6out temp/centroids.blast --log result/$PROJET/log/vsearch_centroids-annotation_$PROJET.log 2> /dev/null
-cat temp/centroids.blast | sort -t'\t' -k 1,1 > result/$PROJET/centroids.blast
-cut -d$'\t' -f1,2 result/$PROJET/centroids.blast | sort -t'\t' -k 1,1 > temp/centroids-simple.blast
+cat temp/centroids.blast | sort -t$'\t' -k 1,1 > result/$PROJET/centroids.blast
+cut -d$'\t' -f1,2 result/$PROJET/centroids.blast | sort -t$'\t' -k 1,1 > temp/centroids-simple.blast
 ## Join
-awk 'NR==FNR {h[$1]=$2; next} {print $1"\t"h[$2]}' database/$DATABASE/$Tax_Database temp/centroids-simple.blast | sort -t'\t' -k 1,1 > result/$PROJET/centroids.BHtaxo
+awk 'NR==FNR {h[$1]=$2; next} {print $1"\t"h[$2]}' database/$DATABASE/$Tax_Database temp/centroids-simple.blast | sort -t$'\t' -k 1,1 > result/$PROJET/centroids.BHtaxo
 echo -e "\t"$(cat result/$PROJET/log/vsearch_centroids-annotation_$PROJET.log | grep "Matching unique query sequences:")
 # LCA Classificiation
 echo -e "4/6 LCA classification"
@@ -193,15 +193,15 @@ echo -e "4/6 LCA classification"
 ARB_Database=$(ls database/LCA | grep ".*.arb$")
 ## centroids annotation
 sina -i result/$PROJET/centroids.fasta --db database/LCA/$ARB_Database -o temp/sina_out.csv -p $THREADS -S --lca-fields tax_slv
-tail -n +2 temp/sina_out.csv | tr "," "\t" | tr " " "_" | sort -t'\t' -k 1,1 > result/$PROJET/centroids.alignment
-cat result/$PROJET/centroids.alignment | cut -d$'\t' -f1,6,8 | sort -t'\t' -k 1,1 > result/$PROJET/centroids.LCAtaxo
+tail -n +2 temp/sina_out.csv | tr "," "\t" | tr " " "_" | sort -t$'\t' -k 1,1 > result/$PROJET/centroids.alignment
+cat result/$PROJET/centroids.alignment | cut -d$'\t' -f1,6,8 | sort -t$'\t' -k 1,1 > result/$PROJET/centroids.LCAtaxo
 #
 ## Prepare result table
 echo -e "5/6 OTU table generation"
 HEADER=$(echo -e $(head -n1 result/$PROJET/OTU-table-$PROJET.tab | sed 's/ /_/g' | sed 's/\t/;/g')";BH_tax;ID%;Accesion_number;LCA_tax_slv;Align_quality_slv")
 echo $HEADER | sed 's/;/\t/g' > result/$PROJET/result-$PROJET.tab
 
-tail -n +2 result/$PROJET/OTU-table-$PROJET.tab | sort -t'\t' -k 1,1 > temp/result-$PROJET.temp
+tail -n +2 result/$PROJET/OTU-table-$PROJET.tab | sort -t$'\t' -k 1,1 > temp/result-$PROJET.temp
 
 h=0
 LIST=''
