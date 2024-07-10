@@ -50,27 +50,35 @@ echo -e "\t$sampleI"
 done
 echo -e "Paramaters:"
 MAXMERGE=$(cat $INI | grep "MAXMERGE" | awk -F' : ' '{print $2}')
-echo -e "\tMaximum merge length : $MAXMERGE"
+echo -e "\tMaximum merge length: $MAXMERGE"
 MINMERGE=$(cat $INI | grep "MINMERGE" | awk -F' : ' '{print $2}')
-echo -e "\tMinimum merge length : $MINMERGE"
+echo -e "\tMinimum merge length: $MINMERGE"
 MAXDIFFS=$(cat $INI | grep "MAXDIFFS" | awk -F' : ' '{print $2}')
-echo -e "\tMaximum differences in the overlap : $MAXDIFFS"
-MAXNS=$(cat $INI | grep "MAXNS" | awk -F' : ' '{print $2}')
-echo -e "\tMaximum ambiguous nucleotide in the overlap : $MAXNS"
+echo -e "\tMaximum differences in the overlap: $MAXDIFFS"
+MAXNS=$(cat $INI | grep "MAXNS" | awk -F': ' '{print $2}')
+echo -e "\tMaximum ambiguous nucleotide in the overlap: $MAXNS"
 PRIMERF=$(cat $INI | grep "PRIMERF" | awk -F' : ' '{print $2}')
-echo -e "\tPrimer forward : $PRIMERF"
+echo -e "\tPrimer forward: $PRIMERF"
 PRIMERR=$(cat $INI | grep "PRIMERR" | awk -F' : ' '{print $2}' | tr 'ATCGRYKMBDHVNatcgrykmbdhvn' 'TAGCYRMKVHDBNtagcyrmkvhdbn' | rev )
-echo -e "\tPrimer reverse : $PRIMERR"
+echo -e "\tPrimer reverse: $PRIMERR"
+TRIMPRIM=$(cat $INI | grep "TRIMPRIM" | awk -F' : ' '{print $2}')#AM20240710
+echo -e "\tPrimer sequences trimming: $TRIMPRIM"
+MAXEE=$(cat $INI | grep "MAXEE" | awk -F' : ' '{print $2}' )#AM20240710
+echo -e "\tMaximum expected error: $MAXEE"
+MINOVERLAP=$(cat $INI | grep "MINOVERLAP" | awk -F' : ' '{print $2}' )#AM20240710
+echo -e "\tMinimum overlap length between forward and reverse reads: $MINOVERLAP"
+STAG=$(cat $INI | grep "STAG" | awk -F' : ' '{print $2}')#AM20240710
+echo -e "\tAllow staggered reads: $STAG"
 DATABASE=$(cat $INI | grep "DATABASE" | awk -F' : ' '{print $2}')
-echo -e "\tDatabase : $DATABASE"
+echo -e "\tDatabase: $DATABASE"
 IDENTITY=$(cat $INI | grep "IDENTITY" | awk -F' : ' '{print $2}')
-echo -e "\tClustering treshold : $IDENTITY"
-CHIMERAYN=$(cat $INI | grep "CHIMERAYN" | awk -F' : ' '{print $2}')
-echo -e "\tChimera removal : $CHIMERAYN"
+echo -e "\tClustering treshold: $IDENTITY"
+CHIMERAYN=$(cat $INI | grep "CHIMERAYN" | awk -F': ' '{print $2}')
+echo -e "\tChimera removal: $CHIMERAYN"
 THREADS=$(cat $INI | grep "THREADS" | awk -F' : ' '{print $2}')
-echo -e "\tNumber of threads : $THREADS"
+echo -e "\tNumber of threads: $THREADS"
 FILTER=$(cat $INI | grep "FILTER" | awk -F' : ' '{print $2}')
-echo -e "\tSelected filter : $FILTER"
+echo -e "\tSelected filter: $FILTER"
 # Set treshold for filter
 TRESH=0 # set treshold to 0
 if [ $(echo $FILTER | grep "Singleton" | wc -l) -eq 1 ]
@@ -118,19 +126,39 @@ do
         fastqc rawdata/$PROJET/$reverse -o result/$PROJET/quality/ -q > /dev/null
         ## Merging
         echo -e "\t\t2/5 Merging"
-        vsearch -fastq_mergepairs rawdata/$PROJET/$forward -reverse rawdata/$PROJET/$reverse -fastq_maxmergelen $MAXMERGE -fastq_allowmergestagger -fastq_minmergelen $MINMERGE -fastq_maxdiffs $MAXDIFFS -fastq_maxns $MAXNS -fastqout temp/$label"_assembly.fastq" --log result/$PROJET/log/vsearch_merging_$label.log 2> /dev/null
+        #AM20240710 ==>
+        if [ $(echo $STAG | grep "Y" | wc -l) -eq 1 ]
+        then
+        STAG_OPT="-fastq_allowmergestagger"
+        fi
+        if [ $(echo $STAG | grep "N" | wc -l) -eq 1 ]
+        then
+        STAG_OPT="-fastq_nostagger"
+        fi
+        #<== AM20240710
+        vsearch -fastq_mergepairs rawdata/$PROJET/$forward -reverse rawdata/$PROJET/$reverse -fastq_maxmergelen $MAXMERGE $STAG_OPT -fastq_minmergelen $MINMERGE -fastq_maxdiffs $MAXDIFFS -fastq_maxns $MAXNS -fastq_minovlen $MINOVERLAP -fastqout temp/$label"_assembly.fastq" --log result/$PROJET/log/vsearch_merging_$label.log 2> /dev/null
         echo -e "\t\t\tPairs: "$(cat result/$PROJET/log/vsearch_merging_$label.log | grep " Pairs" | awk -F" Pairs" '{print $1}')
         echo -e "\t\t\tMerged: "$(cat result/$PROJET/log/vsearch_merging_$label.log | grep " Merged" | awk -F" Merged" '{print $1" "$2}')
         echo -e "\t\t\tNot merged: "$(cat result/$PROJET/log/vsearch_merging_$label.log | grep " Not merged" | awk -F" Not merged" '{print $1" "$2}')
         # Quality of assembly
         echo -e "\t\t3/5 Quality checking of assembly"
         fastqc temp/$label"_assembly.fastq" -o result/$PROJET/quality/ -q > /dev/null
-        ## Cutadapt
-        echo -e "\t\t4/5 Detection and trimming of primers sequences"
+        ## Trimming and sorting #AM20240710
+        echo -e "\t\t4/5 Detection of primers sequences"
+        #AM20240710 ==>
+        if [ $(echo $TRIMPRIM | grep "Y" | wc -l) -eq 1 ]
+        then
+        TRIMPRIM_OPT="trim"
+        fi
+        if [ $(echo $TRIMPRIM | grep "N" | wc -l) -eq 1 ]
+        then
+        TRIMPRIM_OPT="retain"
+        fi
+        #<== AM20240710
         LENF=$(($(echo $PRIMERF | wc -c)-1))
         LENR=$(($(echo $PRIMERR | wc -c)-1))
         PATTERN=$PRIMERF";min_overlap="$LENF";required..."$PRIMERR";min_overlap="$LENR";required"
-        nohup cutadapt -a $PATTERN -o temp/$label"_assembly_trim.fastq" -q 30 -e 0 --discard-untrimmed temp/$label"_assembly.fastq" > result/$PROJET/log/cutadapt_$label.log 2>/dev/null
+        nohup cutadapt -a $PATTERN -o temp/$label"_assembly_sort.fastq" --action $TRIMPRIM_OPT --max-expected-errors $MAXEE -e 0 --discard-untrimmed temp/$label"_assembly.fastq" > result/$PROJET/log/cutadapt_$label.log 2>/dev/null #AM20240710
         echo -e "\t\t\t"$(cat result/$PROJET/log/cutadapt_$label.log | grep "Total reads processed:")
         echo -e "\t\t\t"$(cat result/$PROJET/log/cutadapt_$label.log | grep "Reads with adapters:")
         if [ $(cat result/$PROJET/log/cutadapt_$label.log | grep "Reads discarded as untrimmed:" | wc -l) -eq 1 ]
@@ -139,16 +167,19 @@ do
         fi
         echo -e "\t\t\t"$(cat result/$PROJET/log/cutadapt_$label.log | grep "Reads written (passing filters):")
         echo -e "\t\t\t"$(cat result/$PROJET/log/cutadapt_$label.log | grep "Total basepairs processed:")
+        if [ $(cat result/$PROJET/log/cutadapt_$label.log | grep "Quality-trimmed:" | wc -l) -eq 1 ]
+        then
         echo -e "\t\t\t"$(cat result/$PROJET/log/cutadapt_$label.log | grep "Quality-trimmed:")
-        echo -e "\t\t\t"$(cat result/$PROJET/log/cutadapt_$label.log | grep "Total written (filtered)")
+        fi
+        echo -e "\t\t\t"$(cat result/$PROJET/log/cutadapt_$label.log | grep "Total written (filtered):")
         ## Convertion
-        vsearch -fastq_filter temp/$label"_assembly_trim.fastq" -fastaout temp/$PROJET"_"$label"_assembly_trim.fasta" -relabel $label":" -fasta_width 0 --log result/$PROJET/log/vsearch_conversion_$label.log 2> /dev/null
+        vsearch -fastq_filter temp/$label"_assembly_sort.fastq" -fastaout temp/$PROJET"_"$label"_assembly_sort.fasta" -relabel $label":" -fasta_width 0 --log result/$PROJET/log/vsearch_conversion_$label.log 2> /dev/null
         ### CHIMERA
         if [ $(echo $CHIMERAYN | grep "Y" | wc -l) -eq 1 ]
         then
         echo -e "\t\t5/5 Detection and removal of chimera: Yes"
-        vsearch -uchime_denovo temp/$PROJET"_"$label"_assembly_trim.fasta" -nonchimeras "temp/nonchimera_"$PROJET"_"$label"_assembly_clean.fasta" -fasta_width 0 --log result/$PROJET/log/vsearch_chimera_$label.log 2> /dev/null
-        echo -e "\t\t\tChimeras: "$(cat result/$PROJET/log/vsearch_chimera_$label.log | grep "temp/"$PROJET"_"$label"_assembly_trim.fasta: " | cut -d" " -f2,4)
+        vsearch -uchime_denovo temp/$PROJET"_"$label"_assembly_sort.fasta" -nonchimeras "temp/nonchimera_"$PROJET"_"$label"_assembly_clean.fasta" -fasta_width 0 --log result/$PROJET/log/vsearch_chimera_$label.log 2> /dev/null
+        echo -e "\t\t\tChimeras: "$(cat result/$PROJET/log/vsearch_chimera_$label.log | grep "temp/"$PROJET"_"$label"_assembly_sort.fasta: " | cut -d" " -f2,4)
         fi
         if [ $(echo $CHIMERAYN | grep "N" | wc -l) -eq 1 ]
         then
@@ -164,7 +195,7 @@ cat temp/nonchimera_$PROJET*.fasta >> result/$PROJET/$PROJET"_all.fasta"
 fi
 if [ $(echo $CHIMERAYN | grep "N" | wc -l) -eq 1 ]
 then
-cat temp/$PROJET*_assembly_trim.fasta >> result/$PROJET/$PROJET"_all.fasta"
+cat temp/$PROJET*_assembly_sort.fasta >> result/$PROJET/$PROJET"_all.fasta"
 fi
 # Dereplication
 vsearch -derep_fulllength result/$PROJET/$PROJET"_all.fasta" -output result/$PROJET/unique.fasta -relabel uniq_ --log result/$PROJET/log/vsearch_dereplication_$PROJET.log 2> /dev/null

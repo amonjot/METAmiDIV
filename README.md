@@ -76,6 +76,10 @@ Prepare an initialization file using the *test.ini* as model:
     MAXNS : The maximum number of ambiguous nucleotide in the assembly.
     PRIMERF : Forward primer sequence in 5'-3'.
     PRIMERR : Reverse primer sequence in 5'-3'.
+    TRIMPRIM : Specify if you want to trim the primers sequences from the reads (*Y* or *N*).
+    MAXEE : The maximum expected error within reads.
+    MINOVERLAP : The minimum length of the overlap between forward and reverse read during merging step.
+    STAG : Specify if you want allow taggered reads or not (*Y* or *N*). This option is useful when very short amplicons are sequenced.
     DATABASE : Database (specified the name of the database directory: *PR2*, *SILVA* or your own database).
     IDENTITY : Clustering treshold (e.g. *0.97*).
     CHIMERAYN : Specify if you want to detect and remove chimeras or not (*Y* or *N*). This step take a while.
