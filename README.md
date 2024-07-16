@@ -2,12 +2,12 @@
 
 # **METAmiDIV: A ready to use METAbarcoding workflow to describe MIcrobial DIVersity**
 
-![Static Badge](https://img.shields.io/badge/Shell-8A2BE2)
+![Static Badge](https://img.shields.io/badge/Code-Shell-8A2BE2)
 [![Project Status: Active - The project has reached a stable, usable state and is being actively developed.](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active)
 
 **METAmiDIV allow to carried out metabarcoding sequencing data analyses using OTU clusterisation on unix-64 bit personal computer**
 
-## **0. Clone repository:**
+## **Clone repository:**
 
 To install METAmiDIV, please follow instructions bellow:
 
@@ -33,7 +33,7 @@ cd METAmiDIV
     - sina
     - parallel
 
-## **1. Setup:**
+## **Setup:**
 
 To format current repository and install dependencies. 
 
@@ -55,7 +55,7 @@ You also can use a home made database using *mothur* database format:
     - 1 text file linking accesion number to taxonomy (tabulation as delimiter)
             AY505519    Bacteria;Firmicutes;Bacilli;Bacillales;Bacillaceae;Halobacillus
 
-## **2. Launch analysis:**
+## **Launch analysis:**
 
 To launch metabarcoding analysis, use Launch script with an initialization file *.ini* in argument.
 
@@ -89,3 +89,22 @@ Prepare an initialization file using the *test.ini* as model:
 
 Results will be placed in the result directory.
 
+## REFERENCES
+
+VSEARCH: Rognes T, Flouri T, Nichols B, et al. VSEARCH: a versatile open source tool for metagenomics. PeerJ. 2016; 4:e2584. doi: 10.7717/peerj.2584
+
+FASTQC: Andrews S. FastQC:  A Quality Control Tool for High Throughput Sequence Data. 2010. http://www.bioinformatics.babraham.ac.uk/projects/fastqc/.
+
+cutadapt: Martin M. Cutadapt removes adapter sequences from high-throughput sequencing reads. EMBnet j. 2011; 17(1):10. doi: 10.14806/ej.17.1.200
+
+csvkit: Christopher G and contributors. csvkit. 2016. https://csvkit.readthedocs.org/.
+
+SINA: Pruesse E, Peplies J, Glöckner FO. SINA: Accurate high-throughput multiple sequence alignment of ribosomal RNA genes. Bioinformatics. 2012; 28(14):1823-1829. doi: 10.1093/bioinformatics/bts252
+
+GNU parallel: Tange O. GNU Parallel - The Command-Line Power Tool. The USENIX Magazine. 2011; 36(1):42-47. http://www.gnu.org/s/parallel/.
+
+
+
+## CONTACT
+<div itemscope itemtype="https://schema.org/Person"><a itemprop="sameAs" content="https://orcid.org/0000-0002-6978-4785" href="https://orcid.org/0000-0002-6978-4785" target="orcid.widget" rel="noopener noreferrer" style="vertical-align:top;"><img src="https://orcid.org/sites/default/files/images/orcid_16x16.png" style="width:1em;margin-right:.5em;" alt="ORCID iD icon">Arthur Monjot</a></div>
+Arthur.Monjot.pro[at]gmail.com
