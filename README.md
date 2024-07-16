@@ -103,9 +103,7 @@ Results will be placed in the result directory.
 
 ## CITATION
 ### Software
-Arthur Monjot. METAmiDIV: A ready to use METAbarcoding workflow to describe MIcrobial DIVersity. (2024). https://zenodo.org/doi/10.5281/zenodo.12751816
-
-
+Monjot A. METAmiDIV: A ready to use METAbarcoding workflow to describe MIcrobial DIVersity. 2024. https://zenodo.org/doi/10.5281/zenodo.12751816
 
 
 ## REFERENCES
