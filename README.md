@@ -11,27 +11,27 @@
 
 To install METAmiDIV, please follow instructions bellow:
 
-```
+```bash
 git clone https://github.com/amonjot/METAmiDIV.git
 
 cd METAmiDIV
 ```
 
-### **Dependencies: (installed during installation script)**
-
-    - python (>v3.7)
-    - fastqc
-    - vsearch
-    - cutadapt
-    - perl
-    - wget
-    - gzip
-    - unzip
-    - nano
-    - git
-    - csvkit
-    - sina
-    - parallel
+### **Dependencies**
+The program requires the following dependencies which will be setup during the installation script:
+- python (>v3.7)
+- fastqc
+- vsearch
+- cutadapt
+- perl
+- wget
+- gzip
+- unzip
+- nano
+- git
+- csvkit
+- sina
+- parallel
 
 ## **Setup:**
 
@@ -39,11 +39,15 @@ To format current repository and install dependencies.
 
 First, launch the part A of installation script which install miniconda:
 
-`bash 0A_Miniconda.sh`
+```bash
+bash 0A_Miniconda.sh
+```
 
 You have to close and open a new terminal to initialize miniconda. Then, launch the part B of the installation script: 
 
-`bash 0B_Install.sh`
+```bash
+bash 0B_Install.sh
+```
 
 Specify a database (PR2, SILVA or BOTH).
 
@@ -61,7 +65,9 @@ To launch metabarcoding analysis, use Launch script with an initialization file 
 
 We provide a *test* data set. To launch the analysis use the following command:
 
-`bash 1_Launch.sh test.ini`
+```bash
+bash 1_Launch.sh test.ini
+```
 
 For your own data set, prepare a directory containing reads (compressed or not) and a *metadata.txt* file. Place it in the *rawdata/* directory.
 
