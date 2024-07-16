@@ -53,11 +53,11 @@ Specify a database (PR2, SILVA or BOTH).
 
 You also can use a home made database using *mothur* database format:
 
-    - 1 fasta file linking accesion number to SSU sequences
-            >AY505519
-            ATTCGACGA...
-    - 1 text file linking accesion number to taxonomy (tabulation as delimiter)
-            AY505519    Bacteria;Firmicutes;Bacilli;Bacillales;Bacillaceae;Halobacillus
+- 1 fasta file linking accesion number to SSU sequences
+        >AY505519
+        ATTCGACGA...
+- 1 text file linking accesion number to taxonomy (tabulation as delimiter)
+        AY505519    Bacteria;Firmicutes;Bacilli;Bacillales;Bacillaceae;Halobacillus
 
 ## **Launch analysis:**
 
