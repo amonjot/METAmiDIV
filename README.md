@@ -2,6 +2,8 @@
 
 # **METAmiDIV: A ready to use METAbarcoding workflow to describe MIcrobial DIVersity**
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.12751816.svg)](https://zenodo.org/doi/10.5281/zenodo.12751816)
+![Static Badge](https://img.shields.io/badge/License-Creative%20Commons%20Attribution%204.0%20International-orange)
 ![Static Badge](https://img.shields.io/badge/Code-Shell-8A2BE2)
 [![Project Status: Active - The project has reached a stable, usable state and is being actively developed.](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active)
 
@@ -97,6 +99,14 @@ Prepare an initialization file using the *test.ini* as model:
     FILTER : The type of filters used to analyse OTU table (*Singleton* or *Doubleton* or *Bokulich* or *NoFilter*)
 
 Results will be placed in the result directory.
+
+
+## CITATION
+### Software
+Arthur Monjot. METAmiDIV: A ready to use METAbarcoding workflow to describe MIcrobial DIVersity. (2024). https://zenodo.org/doi/10.5281/zenodo.12751816
+
+
+
 
 ## REFERENCES
 
