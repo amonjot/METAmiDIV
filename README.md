@@ -1,8 +1,9 @@
 <img src="logo_METAmiDIV.png" alt="drawing" width="250"/>
 
-# **METAmiDIV : A ready to use METAbarcoding workflow to describe MIcrobial DIVersity**
+# **METAmiDIV: A ready to use METAbarcoding workflow to describe MIcrobial DIVersity**
 
-![GitHub all releases](https://img.shields.io/github/downloads/amonjot/METAmiDIV/total?logo=Github&style=flat-square)
+![Static Badge](https://img.shields.io/badge/Shell-8A2BE2)
+[![Project Status: Active - The project has reached a stable, usable state and is being actively developed.](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active)
 
 **METAmiDIV allow to carried out metabarcoding sequencing data analyses using OTU clusterisation on unix-64 bit personal computer**
 
