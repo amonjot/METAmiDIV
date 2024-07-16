@@ -7,7 +7,7 @@
 
 **METAmiDIV allow to carried out metabarcoding sequencing data analyses using OTU clusterisation on unix-64 bit personal computer**
 
-## **Clone repository:**
+## **1. Clone repository:**
 
 To install METAmiDIV, please follow instructions bellow:
 
@@ -33,7 +33,7 @@ The program requires the following dependencies which will be setup during the i
 - sina
 - parallel
 
-## **Setup:**
+## **2. Setup:**
 
 To format current repository and install dependencies. 
 
@@ -62,7 +62,7 @@ You also can use a home made database using *mothur* database format:
 
         AY505519    Bacteria;Firmicutes;Bacilli;Bacillales;Bacillaceae;Halobacillus
 
-## **Launch analysis:**
+## **3. Launch analysis:**
 
 To launch metabarcoding analysis, use Launch script with an initialization file *.ini* in argument.
 
@@ -111,7 +111,6 @@ csvkit: Christopher G and contributors. csvkit. 2016. https://csvkit.readthedocs
 SINA: Pruesse E, Peplies J, Glöckner FO. SINA: Accurate high-throughput multiple sequence alignment of ribosomal RNA genes. Bioinformatics. 2012; 28(14):1823-1829. doi: 10.1093/bioinformatics/bts252
 
 GNU parallel: Tange O. GNU Parallel - The Command-Line Power Tool. The USENIX Magazine. 2011; 36(1):42-47. http://www.gnu.org/s/parallel/.
-
 
 
 ## CONTACT
