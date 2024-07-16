@@ -6,7 +6,7 @@
 
 **METAmiDIV allow to carried out metabarcoding sequencing data analyses using OTU clusterisation on unix-64 bit personal computer**
 
-## Clone repository
+## **0. Clone repository:**
 
 To install METAmiDIV, please follow instructions bellow:
 
@@ -54,7 +54,7 @@ You also can use a home made database using *mothur* database format:
     - 1 text file linking accesion number to taxonomy (tabulation as delimiter)
             AY505519    Bacteria;Firmicutes;Bacilli;Bacillales;Bacillaceae;Halobacillus
 
-### **2. Launch analysis:**
+## **2. Launch analysis:**
 
 To launch metabarcoding analysis, use Launch script with an initialization file *.ini* in argument.
 
