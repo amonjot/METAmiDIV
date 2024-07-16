@@ -1,4 +1,4 @@
-<img src="logo_METAmiDIV.png" alt="drawing" width="400"/>
+<img src="logo_METAmiDIV.png" alt="drawing" width="250"/>
 
 # **METAmiDIV : A ready to use METAbarcoding workflow to describe MIcrobial DIVersity**
 
