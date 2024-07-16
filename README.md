@@ -1,5 +1,4 @@
-<img src="logo_METAmiDIV.pdf" alt="drawing" width="200"/>
-
+<img src="logo_METAmiDIV.png" alt="drawing" width="200"/>
 # **METAmiDIV : A ready to use METAbarcoding workflow to describe MIcrobial DIVersity**
 
 ![GitHub all releases](https://img.shields.io/github/downloads/amonjot/METAmiDIV/total?logo=Github&style=flat-square)
