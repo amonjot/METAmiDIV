@@ -1,20 +1,20 @@
+<img src="logo_METAmiDIV.pdf" alt="drawing" width="200"/>
+
 # **METAmiDIV : A ready to use METAbarcoding workflow to describe MIcrobial DIVersity**
-                                     _       _
-         /\                         (_)     | |
-        /  \   _ __ ___   ___  _ __  _  ___ | |_
-       / /\ \ | '_ ` _ \ / _ \| '_ \| |/ _ \| __|
-      / ____ \| | | | | | (_) | | | | | (_) | |_
-     /_/    \_\_| |_| |_|\___/|_| |_| |\___/ \__|
-                                 _/ |
-                                |__/
-19/01/2024
+
+![GitHub all releases](https://img.shields.io/github/downloads/amonjot/METAmiDIV/total?logo=Github&style=flat-square)
 
 **METAmiDIV allow to carried out metabarcoding sequencing data analyses using OTU clusterisation on unix-64 bit personal computer**
-### **Clone repository**
 
-`git clone https://github.com/amonjot/METAmiDIV.git`
+## Clone repository
 
-`cd METAmiDIV`
+To install METAmiDIV, please follow instructions bellow:
+
+```
+git clone https://github.com/amonjot/METAmiDIV.git
+
+cd METAmiDIV
+```
 
 ### **Dependencies: (installed during installation script)**
 
@@ -32,7 +32,7 @@
     - sina
     - parallel
 
-### **1. Setup:**
+## **1. Setup:**
 
 To format current repository and install dependencies. 
 
