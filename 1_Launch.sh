@@ -61,13 +61,13 @@ PRIMERF=$(cat $INI | grep "PRIMERF" | awk -F' : ' '{print $2}')
 echo -e "\tPrimer forward: $PRIMERF"
 PRIMERR=$(cat $INI | grep "PRIMERR" | awk -F' : ' '{print $2}' | tr 'ATCGRYKMBDHVNatcgrykmbdhvn' 'TAGCYRMKVHDBNtagcyrmkvhdbn' | rev )
 echo -e "\tPrimer reverse: $PRIMERR"
-TRIMPRIM=$(cat $INI | grep "TRIMPRIM" | awk -F' : ' '{print $2}')#AM20240710
+TRIMPRIM=$(cat $INI | grep "TRIMPRIM" | awk -F' : ' '{print $2}')
 echo -e "\tPrimer sequences trimming: $TRIMPRIM"
-MAXEE=$(cat $INI | grep "MAXEE" | awk -F' : ' '{print $2}' )#AM20240710
+MAXEE=$(cat $INI | grep "MAXEE" | awk -F' : ' '{print $2}' )
 echo -e "\tMaximum expected error: $MAXEE"
-MINOVERLAP=$(cat $INI | grep "MINOVERLAP" | awk -F' : ' '{print $2}' )#AM20240710
+MINOVERLAP=$(cat $INI | grep "MINOVERLAP" | awk -F' : ' '{print $2}' )
 echo -e "\tMinimum overlap length between forward and reverse reads: $MINOVERLAP"
-STAG=$(cat $INI | grep "STAG" | awk -F' : ' '{print $2}')#AM20240710
+STAG=$(cat $INI | grep "STAG" | awk -F' : ' '{print $2}')
 echo -e "\tAllow staggered reads: $STAG"
 DATABASE=$(cat $INI | grep "DATABASE" | awk -F' : ' '{print $2}')
 echo -e "\tDatabase: $DATABASE"
@@ -158,7 +158,7 @@ do
         LENF=$(($(echo $PRIMERF | wc -c)-1))
         LENR=$(($(echo $PRIMERR | wc -c)-1))
         PATTERN=$PRIMERF";min_overlap="$LENF";required..."$PRIMERR";min_overlap="$LENR";required"
-        nohup cutadapt -a $PATTERN -o temp/$label"_assembly_sort.fastq" --action $TRIMPRIM_OPT --max-expected-errors $MAXEE -e 0 --discard-untrimmed temp/$label"_assembly.fastq" > result/$PROJET/log/cutadapt_$label.log 2>/dev/null #AM20240710
+        nohup cutadapt -a $PATTERN -o temp/$label"_assembly_sort.fastq" --action $TRIMPRIM_OPT --max-expected-errors $MAXEE -e 0 --discard-untrimmed temp/$label"_assembly.fastq" > result/$PROJET/log/cutadapt_$label.log 2>/dev/null
         echo -e "\t\t\t"$(cat result/$PROJET/log/cutadapt_$label.log | grep "Total reads processed:")
         echo -e "\t\t\t"$(cat result/$PROJET/log/cutadapt_$label.log | grep "Reads with adapters:")
         if [ $(cat result/$PROJET/log/cutadapt_$label.log | grep "Reads discarded as untrimmed:" | wc -l) -eq 1 ]
