@@ -116,9 +116,17 @@ cutadapt: Martin M. Cutadapt removes adapter sequences from high-throughput sequ
 
 csvkit: Christopher G and contributors. csvkit. 2016. https://csvkit.readthedocs.org/.
 
+Pruesse E, Quast C, Knittel K, et al. SILVA: a comprehensive online resource for quality checked and aligned ribosomal RNA sequence data compatible with ARB. Nucleic Acids Research. 2007; 35(21):7188-7196. doi: 10.1093/nar/gkm864
+
+Guillou L, Bachar D, Audic S, et al. The Protist Ribosomal Reference database (PR2): a catalog of unicellular eukaryote Small Sub-Unit rRNA sequences with curated taxonomy. Nucleic Acids Research. 2013; 41(D1):D597-D604. doi: 10.1093/nar/gks1160
+
 SINA: Pruesse E, Peplies J, Glöckner FO. SINA: Accurate high-throughput multiple sequence alignment of ribosomal RNA genes. Bioinformatics. 2012; 28(14):1823-1829. doi: 10.1093/bioinformatics/bts252
 
+Bokulich NA, Subramanian S, Faith JJ, et al. Quality-filtering vastly improves diversity estimates from Illumina amplicon sequencing. Nat Methods. 2013; 10(1):57-59. doi: 10.1038/nmeth.2276
+
 GNU parallel: Tange O. GNU Parallel - The Command-Line Power Tool. The USENIX Magazine. 2011; 36(1):42-47. http://www.gnu.org/s/parallel/.
+
+Ondov BD, Bergman NH, Phillippy AM. Interactive metagenomic visualization in a Web browser. BMC Bioinformatics. 2011; 12(1):385. doi: 10.1186/1471-2105-12-385
 
 
 ## CONTACT
